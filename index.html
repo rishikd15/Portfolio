@@ -1,0 +1,64 @@
+<!-- Save this exact code block as your HTML file (e.g., index.html) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Achievements</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Top Navbar with Controls -->
+        <div class="tabs">
+            <div class="tab-group">
+                <button class="tab-btn active" onclick="switchTab('all')">All</button>
+                <button class="tab-btn" onclick="switchTab('school')">School</button>
+                <button class="tab-btn" onclick="switchTab('fll')">FLL</button>
+                <button class="tab-btn" onclick="switchTab('robotics')">Robotics</button>
+                <button class="tab-btn" onclick="switchTab('coding')">Coding</button>
+            </div>
+            <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleThemeManual()">🌗 Theme</button>
+        </div>
+
+        <header>
+            <h1>My Achievement Portfolio</h1>
+            <p>A live tracking of my personal milestones and successes.</p>
+        </header>
+
+        <!-- Input Form -->
+        <div id="formCard" class="form-card">
+            <h2>Add New Achievement</h2>
+            <div id="categoryNotice" class="category-notice"></div>
+            <form id="achievementForm">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" placeholder="e.g., Regional Robotics Champions" required>
+                </div>
+                <div class="form-group hidden-group" id="categoryGroup">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="school">School</option>
+                        <option value="fll">FLL</option>
+                        <option value="robotics">Robotics</option>
+                        <option value="coding">Coding</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="date">Date / Year</label>
+                    <input type="text" id="date" placeholder="e.g., November 2026" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" rows="3" placeholder="Describe your achievement..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Add Achievement</button>
+            </form>
+        </div>
+
+        <!-- Display Area -->
+        <div id="achievementsContainer" class="achievements-list"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
