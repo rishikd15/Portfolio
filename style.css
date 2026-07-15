@@ -1,19 +1,4 @@
-/* Save this exact code block as your CSS file named: style.css */
 :root {
-    --bg-color: #f6f8fa;
-    --card-bg: #ffffff;
-    --border-color: #d0d7de;
-    --text-color: #24292f;
-    --text-heading: #0969da;
-    --primary-color: #0969da;
-    --tab-inactive: #eaeef2;
-    --school-color: #1a7f37;
-    --fll-color: #9a6700;
-    --robotics-color: #8250df;
-    --coding-color: #0969da;
-    --delete-color: #cf222e;
-}
-html.light-theme-override, .light-theme-override {
     --bg-color: #f6f8fa;
     --card-bg: #ffffff;
     --border-color: #d0d7de;
@@ -55,8 +40,6 @@ body {
 .container {
     width: 100%;
     max-width: 800px;
-    position: relative;
-    z-index: 1;
 }
 .tabs {
     display: flex;
@@ -66,7 +49,6 @@ body {
     margin-bottom: 25px;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 15px;
-    transition: border-color 0.3s;
 }
 .tab-group {
     display: flex;
@@ -103,7 +85,6 @@ h1 {
     color: var(--text-heading);
     margin-bottom: 8px;
     font-size: 2.5rem;
-    transition: color 0.3s;
 }
 header p {
     opacity: 0.7;
@@ -116,7 +97,6 @@ header p {
     border-radius: 12px;
     border: 1px solid var(--border-color);
     margin-bottom: 35px;
-    transition: background-color 0.3s, border-color 0.3s;
 }
 .form-card h2 {
     color: var(--text-color);
@@ -140,7 +120,6 @@ input[type="text"], textarea, select {
     box-sizing: border-box;
     font-size: 14px;
     color: var(--text-color);
-    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 input[type="text"]:focus, textarea:focus, select:focus {
     outline: none;
@@ -190,7 +169,6 @@ input[type="text"]:focus, textarea:focus, select:focus {
     border-radius: 12px;
     border: 1px solid var(--border-color);
     position: relative;
-    transition: background-color 0.3s, border-color 0.3s;
 }
 .achievement-card.school { border-left: 4px solid var(--school-color); }
 .achievement-card.fll { border-left: 4px solid var(--fll-color); }
@@ -240,7 +218,6 @@ input[type="text"]:focus, textarea:focus, select:focus {
     font-weight: 500;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s;
 }
 .delete-btn:hover {
     background: var(--delete-color);
