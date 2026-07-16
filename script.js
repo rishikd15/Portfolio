@@ -7,6 +7,9 @@ const categorySelect = document.getElementById('category');
 let currentTab = 'all';
 let currentTheme = 'light';
 
+// SECRET KEY DEFINITION: Change 'robotics123' to any password you want!
+const MASTER_ADMIN_KEY = 'robotics123';
+
 let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || [
     {
         id: 1,
@@ -16,6 +19,34 @@ let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || 
         description: "Engineered high-torque custom gear assemblies and written responsive sensors algorithms in SPIKE Prime to streamline autonomous cargo movement during field runs."
     }
 ];
+
+// --- HARDWARE COMPONENT DETECTOR: IDENTITY PROFILE ENGINE ---
+function verifyDeviceIdentity() {
+    const isVerifiedAdmin = localStorage.getItem('portfolio_admin_active');
+
+    if (isVerifiedAdmin === 'true') {
+        document.body.className = 'admin-user';
+        console.log("Device verified successfully. Admin control engine active.");
+    } else {
+        document.body.className = 'public-user';
+        console.log("Unverified device connection. Serving standard portfolio view layout.");
+    }
+}
+
+// Secret function triggered when you double-click your Location Tag
+window.triggerAdminLogin = function() {
+    const userInput = prompt("Enter Master Administrative Security Key:");
+    if (userInput === MASTER_ADMIN_KEY) {
+        localStorage.setItem('portfolio_admin_active', 'true');
+        alert("Device authenticated successfully! Admin privileges locked into this browser.");
+        verifyDeviceIdentity();
+    } else if (userInput !== null) {
+        alert("Invalid security authentication key signature.");
+    }
+};
+
+// Auto-run verification on load
+verifyDeviceIdentity();
 
 function setTheme(mode) {
     currentTheme = mode;
@@ -30,7 +61,6 @@ function toggleThemeManual() {
     setTheme(currentTheme === 'light' ? 'dark' : 'light');
 }
 
-// Automatically syncs to user's standard Mac System Settings (Light/Dark) safely
 function matchSystemTheme() {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         setTheme('dark');
@@ -78,6 +108,7 @@ function updateFormContext() {
     }
 }
 
+// Unified navigation callback mapping parameters cleanly
 function switchTab(tabName) {
     currentTab = tabName;
     const buttons = document.querySelectorAll('.tab-btn');
