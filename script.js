@@ -1,3 +1,4 @@
+/* Save this exact code block as your JavaScript file named: script.js */
 const form = document.getElementById('achievementForm');
 const container = document.getElementById('achievementsContainer');
 const formCard = document.getElementById('formCard');
@@ -9,7 +10,12 @@ const adminPortalBtn = document.getElementById('adminPortalBtn');
 
 let currentTab = 'all';
 let currentTheme = 'light';
-const MASTER_ADMIN_KEY = 'robotics123';
+
+// ==========================================
+// 🔐 CHANGE YOUR ADMIN PASSWORD HERE:
+// Replace 'carrotie' with any secret code you want.
+// ==========================================
+const MASTER_ADMIN_KEY = 'carrotie';
 
 let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || [
     {
@@ -55,7 +61,7 @@ if (adminPortalBtn) {
     });
 }
 
-// Shows subcategories if "Robotics" is selected in the master admin menu dropdown
+// Drops down the tech sub-tag selector if you choose the Robotics pipeline
 window.handleCategoryChange = function(value) {
     if (value === 'robotics') {
         subcategoryGroup.style.display = 'block';
@@ -108,7 +114,7 @@ function renderAchievements() {
             ? `<button class="delete-btn" onclick="deleteAchievement(${achievement.id})">Decommission</button>` 
             : '';
 
-        // Safely map optional sub-branding tags (fll, arduino, pi) into view cards if present
+        // Inject the clean monospace subheading tag next to the main category label if it exists
         const subTagHtml = achievement.subcategory 
             ? `<span class="achievement-subcategory">${achievement.subcategory}</span>` 
             : '';
@@ -144,7 +150,6 @@ function updateFormContext() {
         categoryNotice.textContent = `Targeting pipeline stack auto-fill: ${currentTab.toLowerCase()}`;
         categorySelect.required = false;
         
-        // Expose stack options if you are viewing the Robotics tab view directly
         if (currentTab === 'robotics') {
             subcategoryGroup.style.display = 'block';
             subcategorySelect.required = true;
