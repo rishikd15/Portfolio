@@ -9,7 +9,7 @@ const adminPortalBtn = document.getElementById('adminPortalBtn');
 
 let currentTab = 'all';
 let currentTheme = 'light';
-const MASTER_ADMIN_KEY = 'robotics123';
+const MASTER_ADMIN_KEY = 'carrotie';
 
 let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || [
     {
