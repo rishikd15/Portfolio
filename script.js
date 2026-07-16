@@ -1,4 +1,3 @@
-/* Save this exact code block as your JavaScript file named: script.js */
 const form = document.getElementById('achievementForm');
 const container = document.getElementById('achievementsContainer');
 const formCard = document.getElementById('formCard');
@@ -12,8 +11,8 @@ let currentTab = 'all';
 let currentTheme = 'light';
 
 // ==========================================
-// 🔐 CHANGE YOUR ADMIN PASSWORD HERE:
-// Replace 'carrotie' with any secret code you want.
+// 🔐 PASS KEY PROFILE TERMINAL
+// Edit your custom secret administration string here
 // ==========================================
 const MASTER_ADMIN_KEY = 'carrotie';
 
@@ -61,7 +60,6 @@ if (adminPortalBtn) {
     });
 }
 
-// Drops down the tech sub-tag selector if you choose the Robotics pipeline
 window.handleCategoryChange = function(value) {
     if (value === 'robotics') {
         subcategoryGroup.style.display = 'block';
@@ -98,7 +96,12 @@ matchSystemTheme();
 
 function renderAchievements() {
     container.innerHTML = '';
-    const filtered = currentTab === 'all' ? achievements : achievements.filter(item => item.category === currentTab);
+    
+    // SMART FILTER: Matches categories OR subcategories cleanly when subheadings are clicked
+    const filtered = currentTab === 'all' 
+        ? achievements 
+        : achievements.filter(item => item.category === currentTab || item.subcategory === currentTab);
+
     if (filtered.length === 0) {
         container.innerHTML = '<div class="empty-state">No technical entries deployed to this stack view.</div>';
         return;
@@ -114,7 +117,6 @@ function renderAchievements() {
             ? `<button class="delete-btn" onclick="deleteAchievement(${achievement.id})">Decommission</button>` 
             : '';
 
-        // Inject the clean monospace subheading tag next to the main category label if it exists
         const subTagHtml = achievement.subcategory 
             ? `<span class="achievement-subcategory">${achievement.subcategory}</span>` 
             : '';
@@ -136,6 +138,7 @@ function renderAchievements() {
 }
 
 function updateFormContext() {
+    // If we're looking at 'all', show normal form
     if (currentTab === 'all') {
         formCard.classList.remove('auto-category');
         document.getElementById('categoryGroup').style.display = 'block';
@@ -143,32 +146,61 @@ function updateFormContext() {
         categorySelect.value = 'school';
         handleCategoryChange('school');
         categoryNotice.style.display = 'none';
-    } else {
+    } 
+    // If we're inside the robotics master tab or any of its children subheadings
+    else if (['robotics', 'fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
         formCard.classList.add('auto-category');
         document.getElementById('categoryGroup').style.display = 'none';
         categoryNotice.style.display = 'block';
-        categoryNotice.textContent = `Targeting pipeline stack auto-fill: ${currentTab.toLowerCase()}`;
         categorySelect.required = false;
         
-        if (currentTab === 'robotics') {
-            subcategoryGroup.style.display = 'block';
-            subcategorySelect.required = true;
-        } else {
+        subcategoryGroup.style.display = 'block';
+        subcategorySelect.required = true;
+        
+        if (['fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
+            categoryNotice.textContent = `Targeting robotics context pipeline: ${currentTab.toUpperCase()}`;
+            subcategorySelect.value = currentTab;
+            // Freeze subcategory dropdown visually since we've filtered down into it
             subcategoryGroup.style.display = 'none';
-            subcategorySelect.required = false;
+        } else {
+            categoryNotice.textContent = `Targeting pipeline stack auto-fill: robotics`;
+            subcategorySelect.value = 'fll';
         }
+    } 
+    // Normal single-layer auto-fills (School, Science Projects, Coding)
+    else {
+        formCard.classList.add('auto-category');
+        document.getElementById('categoryGroup').style.display = 'none';
+        subcategoryGroup.style.display = 'none';
+        subcategorySelect.required = false;
+        categoryNotice.style.display = 'block';
+        categoryNotice.textContent = `Targeting pipeline stack auto-fill: ${currentTab.toLowerCase()}`;
+        categorySelect.required = false;
     }
 }
 
 function switchTab(tabName) {
     currentTab = tabName;
+    
+    // Toggle active classes on tab items securely
     const buttons = document.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    // Set parent active state wrapper borders
+    const dropdownWrapper = document.querySelector('.dropdown-wrapper');
+    if (dropdownWrapper) dropdownWrapper.classList.remove('active');
+
     buttons.forEach(btn => {
-        btn.classList.remove('active');
-        if(btn.textContent.toLowerCase() === tabName) {
+        if(btn.textContent.toLowerCase().replace(' ▾', '') === tabName) {
             btn.classList.add('active');
         }
     });
+
+    // Keep parent Robotics button highlighted if we're looking at its nested elements
+    if (['fll', 'arduino', 'raspberry pi', 'robotics'].includes(tabName) && dropdownWrapper) {
+        dropdownWrapper.classList.add('active');
+    }
+
     updateFormContext();
     renderAchievements();
 }
@@ -176,7 +208,20 @@ function switchTab(tabName) {
 form.addEventListener('submit', function(e) {
     e.preventDefault();
     const title = document.getElementById('title').value;
-    const category = currentTab === 'all' ? categorySelect.value : currentTab;
+    
+    // Dynamic determination of baseline category types
+    let category = categorySelect.value;
+    if (['robotics', 'fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
+        category = 'robotics';
+    } else if (currentTab !== 'all') {
+        category = currentTab;
+    }
+
+    let subcategory = '';
+    if (category === 'robotics') {
+        subcategory = ['fll', 'arduino', 'raspberry pi'].includes(currentTab) ? currentTab : subcategorySelect.value;
+    }
+
     const date = document.getElementById('date').value;
     const description = document.getElementById('description').value;
     
@@ -184,7 +229,7 @@ form.addEventListener('submit', function(e) {
         id: Date.now(),
         title: title,
         category: category,
-        subcategory: category === 'robotics' ? subcategorySelect.value : '',
+        subcategory: subcategory,
         date: date,
         description: description
     };
