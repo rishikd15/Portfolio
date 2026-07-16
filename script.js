@@ -7,7 +7,7 @@ const categorySelect = document.getElementById('category');
 let currentTab = 'all';
 let currentTheme = 'light';
 
-// SECRET KEY DEFINITION: Change 'robotics123' to any password you want!
+// SECRET PASSWORD: Change this to whatever you want
 const MASTER_ADMIN_KEY = 'robotics123';
 
 let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || [
@@ -20,32 +20,47 @@ let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || 
     }
 ];
 
-// --- HARDWARE COMPONENT DETECTOR: IDENTITY PROFILE ENGINE ---
+// --- ADAPTIVE AUTHENTICATION INITIALIZER ENGINE ---
 function verifyDeviceIdentity() {
     const isVerifiedAdmin = localStorage.getItem('portfolio_admin_active');
-
     if (isVerifiedAdmin === 'true') {
         document.body.className = 'admin-user';
-        console.log("Device verified successfully. Admin control engine active.");
+        console.log("Device verified. Admin dashboard unlocked.");
     } else {
         document.body.className = 'public-user';
-        console.log("Unverified device connection. Serving standard portfolio view layout.");
+        console.log("Serving secure public layout view.");
     }
 }
 
-// Secret function triggered when you double-click your Location Tag
-window.triggerAdminLogin = function() {
-    const userInput = prompt("Enter Master Administrative Security Key:");
-    if (userInput === MASTER_ADMIN_KEY) {
-        localStorage.setItem('portfolio_admin_active', 'true');
-        alert("Device authenticated successfully! Admin privileges locked into this browser.");
-        verifyDeviceIdentity();
-    } else if (userInput !== null) {
-        alert("Invalid security authentication key signature.");
-    }
-};
+// FIXED: Bulletproof sequential tap counter listener system maps directly to DOM
+let clickCount = 0;
+let clickTimer = null;
+const loginTrigger = document.getElementById('loginTrigger');
 
-// Auto-run verification on load
+if (loginTrigger) {
+    loginTrigger.addEventListener('click', () => {
+        clickCount++;
+        
+        // Reset the counter if the user takes too long between clicks
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+
+        // Triggers smoothly when clicked exactly 5 times sequentially
+        if (clickCount === 5) {
+            clickCount = 0; // Reset counter
+            const userInput = prompt("Enter Master Administrative Security Key:");
+            if (userInput === MASTER_ADMIN_KEY) {
+                localStorage.setItem('portfolio_admin_active', 'true');
+                alert("Device authenticated successfully! Admin privileges unlocked.");
+                verifyDeviceIdentity();
+            } else if (userInput !== null) {
+                alert("Invalid security authentication key signature.");
+            }
+        }
+    });
+}
+
+// Boot verification engine
 verifyDeviceIdentity();
 
 function setTheme(mode) {
@@ -108,7 +123,6 @@ function updateFormContext() {
     }
 }
 
-// Unified navigation callback mapping parameters cleanly
 function switchTab(tabName) {
     currentTab = tabName;
     const buttons = document.querySelectorAll('.tab-btn');
