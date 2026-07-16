@@ -9,12 +9,7 @@ const adminPortalBtn = document.getElementById('adminPortalBtn');
 
 let currentTab = 'all';
 let currentTheme = 'light';
-
-// ==========================================
-// 🔐 PASS KEY PROFILE TERMINAL
-// Edit your custom secret administration string here
-// ==========================================
-const MASTER_ADMIN_KEY = 'carrotie';
+const MASTER_ADMIN_KEY = 'robotics123';
 
 let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || [
     {
@@ -60,6 +55,18 @@ if (adminPortalBtn) {
     });
 }
 
+// Click trigger toggle to keep dropdown interactive on touch devices
+window.toggleDropdownMenu = function(e) {
+    e.stopPropagation();
+    document.querySelector('.dropdown-wrapper').classList.toggle('open');
+};
+
+// Close dropdown if user clicks anywhere else on the blank layout page
+document.addEventListener('click', () => {
+    const wrapper = document.querySelector('.dropdown-wrapper');
+    if (wrapper) wrapper.classList.remove('open');
+});
+
 window.handleCategoryChange = function(value) {
     if (value === 'robotics') {
         subcategoryGroup.style.display = 'block';
@@ -96,8 +103,6 @@ matchSystemTheme();
 
 function renderAchievements() {
     container.innerHTML = '';
-    
-    // SMART FILTER: Matches categories OR subcategories cleanly when subheadings are clicked
     const filtered = currentTab === 'all' 
         ? achievements 
         : achievements.filter(item => item.category === currentTab || item.subcategory === currentTab);
@@ -138,7 +143,6 @@ function renderAchievements() {
 }
 
 function updateFormContext() {
-    // If we're looking at 'all', show normal form
     if (currentTab === 'all') {
         formCard.classList.remove('auto-category');
         document.getElementById('categoryGroup').style.display = 'block';
@@ -147,27 +151,23 @@ function updateFormContext() {
         handleCategoryChange('school');
         categoryNotice.style.display = 'none';
     } 
-    // If we're inside the robotics master tab or any of its children subheadings
     else if (['robotics', 'fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
         formCard.classList.add('auto-category');
         document.getElementById('categoryGroup').style.display = 'none';
         categoryNotice.style.display = 'block';
         categorySelect.required = false;
-        
         subcategoryGroup.style.display = 'block';
         subcategorySelect.required = true;
         
         if (['fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
             categoryNotice.textContent = `Targeting robotics context pipeline: ${currentTab.toUpperCase()}`;
             subcategorySelect.value = currentTab;
-            // Freeze subcategory dropdown visually since we've filtered down into it
             subcategoryGroup.style.display = 'none';
         } else {
             categoryNotice.textContent = `Targeting pipeline stack auto-fill: robotics`;
             subcategorySelect.value = 'fll';
         }
     } 
-    // Normal single-layer auto-fills (School, Science Projects, Coding)
     else {
         formCard.classList.add('auto-category');
         document.getElementById('categoryGroup').style.display = 'none';
@@ -181,12 +181,9 @@ function updateFormContext() {
 
 function switchTab(tabName) {
     currentTab = tabName;
-    
-    // Toggle active classes on tab items securely
     const buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
     
-    // Set parent active state wrapper borders
     const dropdownWrapper = document.querySelector('.dropdown-wrapper');
     if (dropdownWrapper) dropdownWrapper.classList.remove('active');
 
@@ -196,7 +193,6 @@ function switchTab(tabName) {
         }
     });
 
-    // Keep parent Robotics button highlighted if we're looking at its nested elements
     if (['fll', 'arduino', 'raspberry pi', 'robotics'].includes(tabName) && dropdownWrapper) {
         dropdownWrapper.classList.add('active');
     }
@@ -208,8 +204,6 @@ function switchTab(tabName) {
 form.addEventListener('submit', function(e) {
     e.preventDefault();
     const title = document.getElementById('title').value;
-    
-    // Dynamic determination of baseline category types
     let category = categorySelect.value;
     if (['robotics', 'fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
         category = 'robotics';
