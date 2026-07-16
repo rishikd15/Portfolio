@@ -1,4 +1,3 @@
-/* Save this exact code block as your CSS file named: style.css */
 :root {
     --bg-color: #ffffff;
     --card-bg: #ffffff;
@@ -73,13 +72,14 @@ body {
     font-weight: 600;
 }
 
-/* --- FIXED ROBOTICS DROPDOWN HOVER CONTAINER ENGINE --- */
+/* --- SECURE DROPDOWN NAVIGATION STYLING --- */
 .dropdown-wrapper {
     position: relative;
-    display: inline-block;
+    display: inline-flex !important; 
+    align-items: center;
 }
 .dropdown-menu {
-    display: none; /* Keeps subheadings completely hidden by default */
+    display: none; /* Enforces strict default hidden state */
     position: absolute;
     top: 100%;
     left: 0;
@@ -87,14 +87,14 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 6px 0;
-    min-width: 150px;
+    min-width: 160px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     z-index: 1000;
     margin-top: 4px;
 }
-/* Triggers the dropdown box structure into visibility exclusively on cursor hover */
-.dropdown-wrapper:hover .dropdown-menu {
-    display: block;
+/* Triggers display visibility strictly when active or hovered */
+.dropdown-wrapper:hover .dropdown-menu, .dropdown-wrapper.open .dropdown-menu {
+    display: block !important;
 }
 .dropdown-menu button {
     width: 100%;
