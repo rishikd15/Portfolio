@@ -27,8 +27,7 @@
                     <div class="hero-header-tag">Technical Portfolio</div>
                     <h1>Rishik Das</h1>
                     <div class="contact-row">
-                        <!-- Removed the buggy inline attribute to let JavaScript bind it directly -->
-                        <span id="loginTrigger" class="location-tag">Acton, MA, USA</span>
+                        <span class="location-tag">Acton, MA, USA</span>
                     </div>
                 </div>
                 <div class="profile-avatar-container">
@@ -73,6 +72,11 @@
                 <div id="achievementsContainer" class="achievements-list"></div>
             </section>
         </main>
+        
+        <!-- Visible, un-crashable Admin Gateway footer -->
+        <footer style="margin-top: 80px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center;">
+            <button id="adminPortalBtn" class="theme-toggle-btn" style="font-size: 11px; opacity: 0.6;" onclick="requestAdminLogin()">🔒 Admin Login</button>
+        </footer>
     </div>
     <script src="script.js"></script>
 </body>
