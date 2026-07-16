@@ -145,3 +145,13 @@ input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-c
 .delete-btn { background-color: transparent; color: #cc0000; border: none; font-family: var(--monospace-font); font-size: 11px; font-weight: 600; padding: 0; cursor: pointer; text-transform: uppercase; display: inline-block; margin-top: 4px; }
 .delete-btn:hover { text-decoration: underline; }
 .empty-state { text-align: center; padding: 48px 0; font-family: var(--monospace-font); font-size: 13px; color: var(--text-color); }
+
+/* ADMIN SYSTEM CSS OVERRIDES */
+/* Hides input box and card delete triggers for regular public visitors */
+.admin-only, .public-user .delete-btn {
+    display: none !important;
+}
+/* Re-exposes the form box workspace if the admin panel parameter turns active */
+.admin-user .admin-only {
+    display: block !important;
+}
