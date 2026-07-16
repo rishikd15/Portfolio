@@ -3,233 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Achievements</title>
+    <title>My Portfolio | Autonomy & Robotics</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Navigation Controls -->
-        <div class="tabs">
-            <div class="tab-group">
+    <div class="navbar-wrapper">
+        <div class="navbar">
+            <div class="nav-links">
+                <span class="nav-brand">Portfolio</span>
                 <button class="tab-btn active" onclick="switchTab('all')">All</button>
                 <button class="tab-btn" onclick="switchTab('school')">School</button>
                 <button class="tab-btn" onclick="switchTab('fll')">FLL</button>
                 <button class="tab-btn" onclick="switchTab('robotics')">Robotics</button>
                 <button class="tab-btn" onclick="switchTab('coding')">Coding</button>
             </div>
-            <button class="theme-toggle-btn" onclick="toggleThemeManual()">🌗 Theme</button>
+            <button class="theme-toggle-btn" onclick="toggleThemeManual()">🌗 Dark mode</button>
         </div>
-
-        <header>
-            <h1>My Achievement Portfolio</h1>
-            <p>A live tracking of my personal milestones and successes.</p>
-        </header>
-
-        <!-- Input Form -->
-        <div id="formCard" class="form-card">
-            <h2>Add New Achievement</h2>
-            <div id="categoryNotice" class="category-notice"></div>
-            <form id="achievementForm">
-                <div class="form-group">
-                    <label for="title">Title</label>
-                    <input type="text" id="title" placeholder="e.g., Regional Robotics Champions" required>
-                </div>
-                <div class="form-group hidden-group" id="categoryGroup">
-                    <label for="category">Category</label>
-                    <select id="category" required>
-                        <option value="school">School</option>
-                        <option value="fll">FLL</option>
-                        <option value="robotics">Robotics</option>
-                        <option value="coding">Coding</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="date">Date / Year</label>
-                    <input type="text" id="date" placeholder="e.g., November 2026" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="description" rows="3" placeholder="Describe your achievement..." required></textarea>
-                </div>
-                <button type="submit" class="submit-btn">Add Achievement</button>
-            </form>
-        </div>
-
-        <!-- Display Box -->
-        <div id="achievementsContainer" class="achievements-list"></div>
     </div>
-
-    <script>
-        const form = document.getElementById('achievementForm');
-        const container = document.getElementById('achievementsContainer');
-        const formCard = document.getElementById('formCard');
-        const categoryNotice = document.getElementById('categoryNotice');
-        const categorySelect = document.getElementById('category');
-
-        let currentTab = 'all';
-        let currentTheme = 'light';
-        let isManualTheme = false;
-
-        let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || [
-            {
-                id: 1,
-                title: "FLL Innovation Project Award",
-                category: "fll",
-                date: "January 2026",
-                description: "Designed a robot attachment mechanism and engineered a solution for cargo sorting using spike prime programming languages."
-            }
-        ];
-
-        function setTheme(mode) {
-            currentTheme = mode;
-            if (mode === 'dark') {
-                document.documentElement.className = 'dark-theme-override';
-            } else {
-                document.documentElement.className = '';
-            }
-        }
-
-        function toggleThemeManual() {
-            isManualTheme = true;
-            if (currentTheme === 'light') {
-                setTheme('dark');
-            } else {
-                setTheme('light');
-            }
-        }
-
-        function applyTimeBasedTheme() {
-            const hour = new Date().getHours();
-            if (hour < 6 || hour >= 18) {
-                setTheme('dark');
-            } else {
-                setTheme('light');
-            }
-        }
-
-        async function setupCameraLightSensor() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                applyTimeBasedTheme();
-                return;
-            }
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 100, height: 100 } });
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.autoplay = true;
-                video.playsInline = true;
-
-                const canvas = document.createElement('canvas');
-                canvas.width = 10;
-                canvas.height = 10;
-                const ctx = canvas.getContext('2d');
-
-                video.addEventListener('playing', () => {
-                    setInterval(() => {
-                        if (isManualTheme) return;
-                        
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-                        let totalBrightness = 0;
-
-                        for (let i = 0; i < imgData.length; i += 4) {
-                            const r = imgData[i];
-                            const g = imgData[i + 1];
-                            const b = imgData[i + 2];
-                            const brightness = (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
-                            totalBrightness += brightness;
-                        }
-                        const avgBrightness = totalBrightness / (imgData.length / 4);
-
-                        if (avgBrightness < 80) {
-                            setTheme('dark');
-                        } else {
-                            setTheme('light');
-                        }
-                    }, 1000);
-                });
-            } catch (err) {
-                applyTimeBasedTheme();
-            }
-        }
-
-        setupCameraLightSensor();
-
-        function renderAchievements() {
-            container.innerHTML = '';
-            const filtered = currentTab === 'all' ? achievements : achievements.filter(item => item.category === currentTab);
-            if (filtered.length === 0) {
-                container.innerHTML = '<p style="text-align:center; opacity:0.6; padding: 40px 0;">No achievements in this category yet.</p>';
-                return;
-            }
-            filtered.forEach(achievement => {
-                const card = document.createElement('div');
-                card.className = `achievement-card ${achievement.category}`;
-                card.innerHTML = `
-                    <div class="achievement-header">
-                        <div class="achievement-date">${achievement.date}</div>
-                        <span class="achievement-category">${achievement.category}</span>
+    <div class="container">
+        <header class="hero-section">
+            <h1>My Achievement Portfolio</h1>
+            <p class="subheading">Autonomy explorer building and shipping robotics solutions. Focused on mechanical design, algorithmic execution, and competitive milestones.</p>
+            <div class="contact-row">
+                <span class="location-tag">📍 Acton, MA, USA</span>
+                <span class="status-indicator">🟢 Open to collaboration</span>
+            </div>
+        </header>
+        <main class="main-layout">
+            <section id="formCard" class="form-card">
+                <h2>Log Milestone</h2>
+                <div id="categoryNotice" class="category-notice"></div>
+                <form id="achievementForm">
+                    <div class="form-group">
+                        <label for="title">Project / Title</label>
+                        <input type="text" id="title" placeholder="e.g., Autonomous Maze Navigation" required>
                     </div>
-                    <h3 class="achievement-title">${achievement.title}</h3>
-                    <p class="achievement-desc">${achievement.description}</p>
-                    <button class="delete-btn" onclick="deleteAchievement(${achievement.id})">Delete</button>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function updateFormContext() {
-            if (currentTab === 'all') {
-                formCard.classList.remove('auto-category');
-                document.getElementById('categoryGroup').style.display = 'block';
-                categorySelect.required = true;
-            } else {
-                formCard.classList.add('auto-category');
-                document.getElementById('categoryGroup').style.display = 'none';
-                categoryNotice.textContent = `Adding achievement directly to the ${currentTab.toUpperCase()} category.`;
-                categorySelect.required = false;
-            }
-        }
-
-        function switchTab(tabName) {
-            currentTab = tabName;
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.textContent.toLowerCase() === tabName) {
-                    btn.classList.add('active');
-                }
-            });
-            updateFormContext();
-            renderAchievements();
-        }
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const title = document.getElementById('title').value;
-            const category = currentTab === 'all' ? categorySelect.value : currentTab;
-            const date = document.getElementById('date').value;
-            const description = document.getElementById('description').value;
-            const newAchievement = {
-                id: Date.now(),
-                title: title,
-                category: category,
-                date: date,
-                description: description
-            };
-            achievements.push(newAchievement);
-            localStorage.setItem('myRenamedAchievements', JSON.stringify(achievements));
-            renderAchievements();
-            form.reset();
-        });
-
-        function deleteAchievement(id) {
-            achievements = achievements.filter(item => item.id !== id);
-            localStorage.setItem('myRenamedAchievements', JSON.stringify(achievements));
-            renderAchievements();
-        }
-
-        renderAchievements();
-    </script>
+                    <div class="form-group" id="categoryGroup">
+                        <label for="category">Stack / Category</label>
+                        <select id="category" required>
+                            <option value="school">School</option>
+                            <option value="fll">FLL</option>
+                            <option value="robotics">Robotics</option>
+                            <option value="coding">Coding</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Timeline</label>
+                        <input type="text" id="date" placeholder="e.g., Jan 2026" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Technical Overview</label>
+                        <textarea id="description" rows="4" placeholder="Describe system architecture, mechanisms, or codebase engineering..." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Publish Entry</button>
+                </form>
+            </section>
+            <section class="feed-section">
+                <h2>Featured Deployments</h2>
+                <div id="achievementsContainer" class="achievements-list"></div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
