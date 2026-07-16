@@ -45,7 +45,7 @@ body {
     justify-content: space-between;
     align-items: center;
 }
-.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-links { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .nav-brand {
     font-family: var(--monospace-font);
     font-weight: 600;
@@ -87,7 +87,7 @@ body {
 .hero-section h1 { font-size: 2.8rem; font-weight: 700; color: var(--text-heading); margin: 0 0 16px 0; letter-spacing: -0.04em; line-height: 1.1; }
 .subheading { font-size: 1.1rem; line-height: 1.6; max-width: 720px; margin: 0 0 24px 0; color: var(--text-color); }
 .contact-row { font-size: 13px; font-family: var(--monospace-font); }
-.location-tag { color: var(--text-heading); font-weight: 600; cursor: pointer; user-select: none; }
+.location-tag { color: var(--text-heading); font-weight: 600; }
 .profile-avatar-container {
     position: relative;
     width: 160px;
@@ -139,13 +139,13 @@ input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-c
 .achievement-card { background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); padding: 24px 0; position: relative; }
 .achievement-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
 .achievement-category { font-family: var(--monospace-font); font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-color); }
+/* Specific styling badge for sub-tech tags */
+.achievement-subcategory { font-family: var(--monospace-font); font-size: 11px; color: var(--text-heading); margin-left: 8px; background: var(--border-color); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
 .achievement-date { font-family: var(--monospace-font); font-size: 12px; color: var(--text-color); }
 .achievement-title { font-size: 1.15rem; font-weight: 600; color: var(--text-heading); margin: 0 0 8px 0; }
 .achievement-desc { font-size: 14px; line-height: 1.6; margin: 0 0 16px 0; color: var(--text-color); }
 .delete-btn { background-color: transparent; color: #cc0000; border: none; font-family: var(--monospace-font); font-size: 11px; font-weight: 600; padding: 0; cursor: pointer; text-transform: uppercase; display: inline-block; margin-top: 4px; }
 .delete-btn:hover { text-decoration: underline; }
 .empty-state { text-align: center; padding: 48px 0; font-family: var(--monospace-font); font-size: 13px; color: var(--text-color); }
-
-/* IDENTITY VERIFICATION SYSTEM STYLES */
 .admin-only, .public-user .delete-btn { display: none !important; }
 .admin-user .admin-only { display: block !important; }
