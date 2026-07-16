@@ -3,9 +3,10 @@ const container = document.getElementById('achievementsContainer');
 const formCard = document.getElementById('formCard');
 const categoryNotice = document.getElementById('categoryNotice');
 const categorySelect = document.getElementById('category');
+
 let currentTab = 'all';
 let currentTheme = 'light';
-let isManualTheme = false;
+
 let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || [
     {
         id: 1,
@@ -15,6 +16,7 @@ let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || 
         description: "Engineered high-torque custom gear assemblies and written responsive sensors algorithms in SPIKE Prime to streamline autonomous cargo movement during field runs."
     }
 ];
+
 function setTheme(mode) {
     currentTheme = mode;
     if (mode === 'dark') {
@@ -23,63 +25,21 @@ function setTheme(mode) {
         document.documentElement.className = '';
     }
 }
+
 function toggleThemeManual() {
-    isManualTheme = true;
-    if (currentTheme === 'light') {
+    setTheme(currentTheme === 'light' ? 'dark' : 'light');
+}
+
+// Automatically syncs to user's standard Mac System Settings (Light/Dark) safely
+function matchSystemTheme() {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         setTheme('dark');
     } else {
         setTheme('light');
     }
 }
-function applyTimeBasedTheme() {
-    const hour = new Date().getHours();
-    if (hour < 6 || hour >= 18) {
-        setTheme('dark');
-    } else {
-        setTheme('light');
-    }
-}
-async function setupCameraLightSensor() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        applyTimeBasedTheme();
-        return;
-    }
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 100, height: 100 } });
-        const video = document.createElement('video');
-        video.srcObject = stream;
-        video.autoplay = true;
-        video.playsInline = true;
-        const canvas = document.createElement('canvas');
-        canvas.width = 10;
-        canvas.height = 10;
-        const ctx = canvas.getContext('2d');
-        video.addEventListener('playing', () => {
-            setInterval(() => {
-                if (isManualTheme) return;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-                let totalBrightness = 0;
-                for (let i = 0; i < imgData.length; i += 4) {
-                    const r = imgData[i];
-                    const g = imgData[i + 1];
-                    const b = imgData[i + 2];
-                    const brightness = (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
-                    totalBrightness += brightness;
-                }
-                const avgBrightness = totalBrightness / (imgData.length / 4);
-                if (avgBrightness < 80) {
-                    setTheme('dark');
-                } else {
-                    setTheme('light');
-                }
-            }, 1000);
-        });
-    } catch (err) {
-        applyTimeBasedTheme();
-    }
-}
-setupCameraLightSensor();
+matchSystemTheme();
+
 function renderAchievements() {
     container.innerHTML = '';
     const filtered = currentTab === 'all' ? achievements : achievements.filter(item => item.category === currentTab);
@@ -102,6 +62,7 @@ function renderAchievements() {
         container.appendChild(card);
     });
 }
+
 function updateFormContext() {
     if (currentTab === 'all') {
         formCard.classList.remove('auto-category');
@@ -112,10 +73,11 @@ function updateFormContext() {
         formCard.classList.add('auto-category');
         document.getElementById('categoryGroup').style.display = 'none';
         categoryNotice.style.display = 'block';
-        categoryNotice.textContent = `Targeting pipeline stack auto-fill: ${currentTab.toUpperCase()}`;
+        categoryNotice.textContent = `Targeting pipeline stack auto-fill: ${currentTab.toLowerCase()}`;
         categorySelect.required = false;
     }
 }
+
 function switchTab(tabName) {
     currentTab = tabName;
     const buttons = document.querySelectorAll('.tab-btn');
@@ -128,6 +90,7 @@ function switchTab(tabName) {
     updateFormContext();
     renderAchievements();
 }
+
 form.addEventListener('submit', function(e) {
     e.preventDefault();
     const title = document.getElementById('title').value;
@@ -146,9 +109,11 @@ form.addEventListener('submit', function(e) {
     renderAchievements();
     form.reset();
 });
+
 function deleteAchievement(id) {
     achievements = achievements.filter(item => item.id !== id);
     localStorage.setItem('myRenamedAchievements', JSON.stringify(achievements));
     renderAchievements();
 }
+
 renderAchievements();
