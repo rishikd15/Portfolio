@@ -3,11 +3,12 @@ const container = document.getElementById('achievementsContainer');
 const formCard = document.getElementById('formCard');
 const categoryNotice = document.getElementById('categoryNotice');
 const categorySelect = document.getElementById('category');
+const adminPortalBtn = document.getElementById('adminPortalBtn');
 
 let currentTab = 'all';
 let currentTheme = 'light';
 
-// SECRET PASSWORD: Change this to whatever you want
+// SECRET PASSWORD
 const MASTER_ADMIN_KEY = 'robotics123';
 
 let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || [
@@ -20,47 +21,42 @@ let achievements = JSON.parse(localStorage.getItem('myRenamedAchievements')) || 
     }
 ];
 
-// --- ADAPTIVE AUTHENTICATION INITIALIZER ENGINE ---
 function verifyDeviceIdentity() {
     const isVerifiedAdmin = localStorage.getItem('portfolio_admin_active');
     if (isVerifiedAdmin === 'true') {
         document.body.className = 'admin-user';
-        console.log("Device verified. Admin dashboard unlocked.");
+        if (adminPortalBtn) {
+            adminPortalBtn.textContent = '🔓 Log Out Admin';
+            adminPortalBtn.setAttribute('onclick', 'logOutAdmin()');
+        }
     } else {
         document.body.className = 'public-user';
-        console.log("Serving secure public layout view.");
+        if (adminPortalBtn) {
+            adminPortalBtn.textContent = '🔒 Admin Login';
+            adminPortalBtn.setAttribute('onclick', 'requestAdminLogin()');
+        }
     }
 }
 
-// FIXED: Bulletproof sequential tap counter listener system maps directly to DOM
-let clickCount = 0;
-let clickTimer = null;
-const loginTrigger = document.getElementById('loginTrigger');
+window.requestAdminLogin = function() {
+    const userInput = prompt("Enter Master Administrative Security Key:");
+    if (userInput === MASTER_ADMIN_KEY) {
+        localStorage.setItem('portfolio_admin_active', 'true');
+        alert("Authenticated successfully! Admin dashboard unlocked.");
+        verifyDeviceIdentity();
+        renderAchievements();
+    } else if (userInput !== null) {
+        alert("Invalid security authentication key signature.");
+    }
+};
 
-if (loginTrigger) {
-    loginTrigger.addEventListener('click', () => {
-        clickCount++;
-        
-        // Reset the counter if the user takes too long between clicks
-        clearTimeout(clickTimer);
-        clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+window.logOutAdmin = function() {
+    localStorage.removeItem('portfolio_admin_active');
+    alert("Logged out. Returning to secure public view.");
+    verifyDeviceIdentity();
+    renderAchievements();
+};
 
-        // Triggers smoothly when clicked exactly 5 times sequentially
-        if (clickCount === 5) {
-            clickCount = 0; // Reset counter
-            const userInput = prompt("Enter Master Administrative Security Key:");
-            if (userInput === MASTER_ADMIN_KEY) {
-                localStorage.setItem('portfolio_admin_active', 'true');
-                alert("Device authenticated successfully! Admin privileges unlocked.");
-                verifyDeviceIdentity();
-            } else if (userInput !== null) {
-                alert("Invalid security authentication key signature.");
-            }
-        }
-    });
-}
-
-// Boot verification engine
 verifyDeviceIdentity();
 
 function setTheme(mode) {
@@ -92,9 +88,18 @@ function renderAchievements() {
         container.innerHTML = '<div class="empty-state">No technical entries deployed to this stack view.</div>';
         return;
     }
+    
+    const isVerifiedAdmin = localStorage.getItem('portfolio_admin_active') === 'true';
+
     filtered.forEach(achievement => {
         const card = document.createElement('div');
         card.className = `achievement-card ${achievement.category}`;
+        
+        // Only include the decommission button string if the device is currently authorized as admin
+        const deleteButtonHtml = isVerifiedAdmin 
+            ? `<button class="delete-btn" onclick="deleteAchievement(${achievement.id})">Decommission</button>` 
+            : '';
+
         card.innerHTML = `
             <div class="achievement-header">
                 <span class="achievement-category">${achievement.category}</span>
@@ -102,7 +107,7 @@ function renderAchievements() {
             </div>
             <h3 class="achievement-title">${achievement.title}</h3>
             <p class="achievement-desc">${achievement.description}</p>
-            <button class="delete-btn" onclick="deleteAchievement(${achievement.id})">Decommission</button>
+            ${deleteButtonHtml}
         `;
         container.appendChild(card);
     });
