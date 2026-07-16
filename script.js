@@ -25,37 +25,38 @@ function verifyDeviceIdentity() {
     const isVerifiedAdmin = localStorage.getItem('portfolio_admin_active');
     if (isVerifiedAdmin === 'true') {
         document.body.className = 'admin-user';
-        if (adminPortalBtn) {
-            adminPortalBtn.textContent = '🔓 Log Out Admin';
-            adminPortalBtn.setAttribute('onclick', 'logOutAdmin()');
-        }
+        if (adminPortalBtn) adminPortalBtn.textContent = '¼ Log Out Admin';
     } else {
         document.body.className = 'public-user';
-        if (adminPortalBtn) {
-            adminPortalBtn.textContent = '🔒 Admin Login';
-            adminPortalBtn.setAttribute('onclick', 'requestAdminLogin()');
-        }
+        if (adminPortalBtn) adminPortalBtn.textContent = '🔒 Admin Login';
     }
 }
 
-window.requestAdminLogin = function() {
-    const userInput = prompt("Enter Master Administrative Security Key:");
-    if (userInput === MASTER_ADMIN_KEY) {
-        localStorage.setItem('portfolio_admin_active', 'true');
-        alert("Authenticated successfully! Admin dashboard unlocked.");
-        verifyDeviceIdentity();
-        renderAchievements();
-    } else if (userInput !== null) {
-        alert("Invalid security authentication key signature.");
-    }
-};
-
-window.logOutAdmin = function() {
-    localStorage.removeItem('portfolio_admin_active');
-    alert("Logged out. Returning to secure public view.");
-    verifyDeviceIdentity();
-    renderAchievements();
-};
+// FIXED: Bulletproof Event Listener attached cleanly inside the JS context
+if (adminPortalBtn) {
+    adminPortalBtn.addEventListener('click', () => {
+        const isVerifiedAdmin = localStorage.getItem('portfolio_admin_active') === 'true';
+        
+        if (isVerifiedAdmin) {
+            // Log Out Logic
+            localStorage.removeItem('portfolio_admin_active');
+            alert("Logged out. Returning to secure public view.");
+            verifyDeviceIdentity();
+            renderAchievements();
+        } else {
+            // Log In Logic
+            const userInput = prompt("Enter Master Administrative Security Key:");
+            if (userInput === MASTER_ADMIN_KEY) {
+                localStorage.setItem('portfolio_admin_active', 'true');
+                alert("Authenticated successfully! Admin dashboard unlocked.");
+                verifyDeviceIdentity();
+                renderAchievements();
+            } else if (userInput !== null) {
+                alert("Invalid security authentication key signature.");
+            }
+        }
+    });
+}
 
 verifyDeviceIdentity();
 
@@ -95,7 +96,6 @@ function renderAchievements() {
         const card = document.createElement('div');
         card.className = `achievement-card ${achievement.category}`;
         
-        // Only include the decommission button string if the device is currently authorized as admin
         const deleteButtonHtml = isVerifiedAdmin 
             ? `<button class="delete-btn" onclick="deleteAchievement(${achievement.id})">Decommission</button>` 
             : '';
