@@ -87,7 +87,7 @@ body {
 .hero-section h1 { font-size: 2.8rem; font-weight: 700; color: var(--text-heading); margin: 0 0 16px 0; letter-spacing: -0.04em; line-height: 1.1; }
 .subheading { font-size: 1.1rem; line-height: 1.6; max-width: 720px; margin: 0 0 24px 0; color: var(--text-color); }
 .contact-row { font-size: 13px; font-family: var(--monospace-font); }
-.location-tag { color: var(--text-heading); font-weight: 600; }
+.location-tag { color: var(--text-heading); font-weight: 600; cursor: pointer; user-select: none; }
 .profile-avatar-container {
     position: relative;
     width: 160px;
@@ -146,12 +146,6 @@ input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-c
 .delete-btn:hover { text-decoration: underline; }
 .empty-state { text-align: center; padding: 48px 0; font-family: var(--monospace-font); font-size: 13px; color: var(--text-color); }
 
-/* ADMIN SYSTEM CSS OVERRIDES */
-/* Hides input box and card delete triggers for regular public visitors */
-.admin-only, .public-user .delete-btn {
-    display: none !important;
-}
-/* Re-exposes the form box workspace if the admin panel parameter turns active */
-.admin-user .admin-only {
-    display: block !important;
-}
+/* IDENTITY VERIFICATION SYSTEM STYLES */
+.admin-only, .public-user .delete-btn { display: none !important; }
+.admin-user .admin-only { display: block !important; }
