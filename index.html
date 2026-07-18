@@ -3,99 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rishik Das | Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+    <title>My Personal Achievements</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --primary-color: #4a90e2;
+            --accent-color: #2ecc71;
+            --tab-inactive: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Form Styling */
+        .form-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+
+        /* Tab Navigation Styling */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--tab-inactive);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background-color: var(--tab-inactive);
+            color: #555;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background-color: #d0d0d0;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Achievements List Styling */
+        .achievements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .achievement-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--accent-color);
+            position: relative;
+        }
+
+        .achievement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .achievement-date {
+            font-size: 0.85em;
+            color: #777;
+        }
+
+        .achievement-category {
+            font-size: 0.75em;
+            background: #e1f5fe;
+            color: #0288d1;
+            padding: 3px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .achievement-title {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .achievement-desc {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #e74c3c;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+    </style>
 </head>
 <body>
-    <div class="navbar-wrapper">
-        <div class="navbar">
-            <div class="nav-links">
-                <span class="nav-brand">Portfolio</span>
-                <button class="tab-btn active" onclick="switchTab('all')">All</button>
-                <button class="tab-btn" onclick="switchTab('school')">School</button>
-                
-                <!-- FIXED DROPDOWN HTML STRUCTURE -->
-                <div class="dropdown-wrapper">
-                    <button class="tab-btn dropdown-trigger" onclick="toggleDropdownMenu(event)">Robotics ▾</button>
-                    <!-- Subheadings are now safely nested inside the hidden wrapper -->
-                    <div id="roboticsDropdown" class="dropdown-menu">
-                        <button onclick="switchTab('robotics')">Overview</button>
-                        <button onclick="switchTab('fll')">FLL</button>
-                        <button onclick="switchTab('arduino')">Arduino</button>
-                        <button onclick="switchTab('raspberry pi')">Raspberry Pi</button>
-                    </div>
-                </div>
 
-                <button class="tab-btn" onclick="switchTab('science projects')">Science Projects</button>
-                <button class="tab-btn" onclick="switchTab('coding')">Coding</button>
-            </div>
-            <button class="theme-toggle-btn" onclick="toggleThemeManual()">Dark mode</button>
-        </div>
-    </div>
+    <header>
+        <h1>My Achievement Portfolio</h1>
+        <p>A live tracking of my personal milestones and successes.</p>
+    </header>
+
     <div class="container">
-        <header class="hero-section">
-            <div class="hero-grid">
-                <div class="hero-text">
-                    <div class="hero-header-tag">Technical Portfolio</div>
-                    <h1>Rishik Das</h1>
-                    <div class="contact-row">
-                        <span class="location-tag">Acton, MA, USA</span>
-                    </div>
+        <div class="form-card">
+            <h2>Add New Achievement</h2>
+            <form id="achievementForm">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" placeholder="e.g., Graduated with Honors" required>
                 </div>
-                <div class="profile-avatar-container">
-                    <div class="radar-ring"></div>
-                    <div class="profile-image-wrapper">
-                        <img src="profile.jpeg" alt="Rishik Das" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://w3.org\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'><circle cx=\'50\' cy=\'50\' r=\'40\' fill=\'%23dddddd\'/></svg>'">
-                    </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="work">Work</option>
+                        <option value="education">Education</option>
+                        <option value="personal">Personal</option>
+                    </select>
                 </div>
+                <div class="form-group">
+                    <label for="date">Date / Year</label>
+                    <input type="text" id="date" placeholder="e.g., June 2026" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" rows="3" placeholder="Describe your achievement..." required></textarea>
+                </div>
+                <button type="submit">Add Achievement</button>
+            </form>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'all')">All</button>
+            <button class="tab-btn" onclick="switchTab(event, 'work')">Work</button>
+            <button class="tab-btn" onclick="switchTab(event, 'education')">Education</button>
+            <button class="tab-btn" onclick="switchTab(event, 'personal')">Personal</button>
+        </div>
+
+        <div id="achievementsContainer" class="achievements-list">
             </div>
-        </header>
-        <main class="main-layout">
-            <section id="formCard" class="form-card admin-only">
-                <h2>Log Milestone</h2>
-                <div id="categoryNotice" class="category-notice"></div>
-                <form id="achievementForm">
-                    <div class="form-group">
-                        <label for="title">Project / Title</label>
-                        <input type="text" id="title" placeholder="e.g., Autonomous Maze Navigation" required>
-                    </div>
-                    <div class="form-group" id="categoryGroup">
-                        <label for="category">Stack / Category</label>
-                        <select id="category" required {
-                            <option value="school">School</option>
-                            <option value="robotics">Robotics</option>
-                            <option value="science projects">Science Projects</option>
-                            <option value="coding">Coding</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="subcategoryGroup" style="display: none;">
-                        <label for="subcategory">Robotics Subcategory</label>
-                        <select id="subcategory">
-                            <option value="fll">FLL</option>
-                            <option value="arduino">Arduino</option>
-                            <option value="raspberry pi">Raspberry Pi</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="date">Timeline</label>
-                        <input type="text" id="date" placeholder="e.g., Jan 2026" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Technical Overview</label>
-                        <textarea id="description" rows="4" placeholder="Describe system architecture, mechanisms, or codebase engineering..." required></textarea>
-                    </div>
-                    <button type="submit" class="submit-btn">Publish Entry</button>
-                </form>
-            </section>
-            <section class="feed-section">
-                <h2>Achievements</h2>
-                <div id="achievementsContainer" class="achievements-list"></div>
-            </section>
-        </main>
-        <footer style="margin-top: 80px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center;">
-            <button id="adminPortalBtn" class="theme-toggle-btn" style="font-size: 11px; opacity: 0.6;">🔒 Admin Login</button>
-        </footer>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        const form = document.getElementById('achievementForm');
+        const container = document.getElementById('achievementsContainer');
+        
+        // Track the currently active view tab
+        let currentTab = 'all';
+
+        // Check if data exists in localStorage, otherwise use default samples
+        let achievements = JSON.parse(localStorage.getItem('myTabbedAchievements')) || [
+            {
+                id: 1,
+                title: "Created Personal Portfolio Website",
+                category: "personal",
+                date: "July 2026",
+                description: "Successfully built and launched an interactive web app with category tabs using vanilla JS."
+            }
+        ];
+
+        // Function to render achievements filtering by the active tab
+        function renderAchievements() {
+            container.innerHTML = '';
+            
+            // Filter list based on current selection
+            const filtered = currentTab === 'all' 
+                ? achievements 
+                : achievements.filter(item => item.category === currentTab);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#777;">No achievements in this category yet.</p>';
+                return;
+            }
+
+            filtered.forEach(achievement => {
+                const card = document.createElement('div');
+                card.className = 'achievement-card';
+                
+                card.innerHTML = `
+                    <div class="achievement-header">
+                        <div class="achievement-date">${achievement.date}</div>
+                        <span class="achievement-category">${achievement.category}</span>
+                    </div>
+                    <h3 class="achievement-title">${achievement.title}</h3>
+                    <p class="achievement-desc">${achievement.description}</p>
+                    <button class="delete-btn" onclick="deleteAchievement(${achievement.id})">Delete</button>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Handles switching active tabs
+        function switchTab(event, tabName) {
+            currentTab = tabName;
+            
+            // Update visual active state on buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            renderAchievements();
+        }
+
+        // Save current array state to localStorage
+        function saveToStorage() {
+            localStorage.setItem('myTabbedAchievements', JSON.stringify(achievements));
+        }
+
+        // Form submission handling
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            const date = document.getElementById('date').value;
+            const description = document.getElementById('description').value;
+
+            const newAchievement = {
+                id: Date.now(),
+                title: title,
+                category: category,
+                date: date,
+                description: description
+            };
+
+            achievements.push(newAchievement);
+            saveToStorage();
+            renderAchievements();
+            form.reset();
+        });
+
+        // Function to delete an achievement
+        function deleteAchievement(id) {
+            achievements = achievements.filter(item => item.id !== id);
+            saveToStorage();
+            renderAchievements();
+        }
+
+        // Initial load
+        renderAchievements();
+    </script>
 </body>
 </html>
