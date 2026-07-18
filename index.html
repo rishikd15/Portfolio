@@ -40,49 +40,6 @@
             max-width: 800px;
         }
 
-        /* Form Styling */
-        .form-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input[type="text"], textarea, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background-color: #357abd;
-        }
-
         /* Tab Navigation Styling */
         .tabs {
             display: flex;
@@ -159,19 +116,6 @@
             margin: 0;
             line-height: 1.5;
         }
-
-        .delete-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #e74c3c;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        .delete-btn:hover {
-            background: #c0392b;
-        }
     </style>
 </head>
 <body>
@@ -182,33 +126,6 @@
     </header>
 
     <div class="container">
-        <div class="form-card">
-            <h2>Add New Achievement</h2>
-            <form id="achievementForm">
-                <div class="form-group">
-                    <label for="title">Title</label>
-                    <input type="text" id="title" placeholder="e.g., Graduated with Honors" required>
-                </div>
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select id="category" required>
-                        <option value="work">Work</option>
-                        <option value="education">Education</option>
-                        <option value="personal">Personal</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="date">Date / Year</label>
-                    <input type="text" id="date" placeholder="e.g., June 2026" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="description" rows="3" placeholder="Describe your achievement..." required></textarea>
-                </div>
-                <button type="submit">Add Achievement</button>
-            </form>
-        </div>
-
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab(event, 'all')">All</button>
             <button class="tab-btn" onclick="switchTab(event, 'work')">Work</button>
@@ -217,32 +134,30 @@
         </div>
 
         <div id="achievementsContainer" class="achievements-list">
-            </div>
+            Loading achievements...
+        </div>
     </div>
 
     <script>
-        const form = document.getElementById('achievementForm');
         const container = document.getElementById('achievementsContainer');
-        
-        // Track the currently active view tab
         let currentTab = 'all';
+        let achievements = [];
 
-        // Check if data exists in localStorage, otherwise use default samples
-        let achievements = JSON.parse(localStorage.getItem('myTabbedAchievements')) || [
-            {
-                id: 1,
-                title: "Created Personal Portfolio Website",
-                category: "personal",
-                date: "July 2026",
-                description: "Successfully built and launched an interactive web app with category tabs using vanilla JS."
+        // Fetch data from the public achievements.json file
+        async function loadAchievements() {
+            try {
+                const response = await fetch('./achievements.json');
+                achievements = await response.json();
+                renderAchievements();
+            } catch (error) {
+                container.innerHTML = '<p style="text-align:center; color:red;">Failed to load achievements list.</p>';
+                console.error(error);
             }
-        ];
+        }
 
-        // Function to render achievements filtering by the active tab
         function renderAchievements() {
             container.innerHTML = '';
             
-            // Filter list based on current selection
             const filtered = currentTab === 'all' 
                 ? achievements 
                 : achievements.filter(item => item.category === currentTab);
@@ -263,63 +178,21 @@
                     </div>
                     <h3 class="achievement-title">${achievement.title}</h3>
                     <p class="achievement-desc">${achievement.description}</p>
-                    <button class="delete-btn" onclick="deleteAchievement(${achievement.id})">Delete</button>
                 `;
                 
                 container.appendChild(card);
             });
         }
 
-        // Handles switching active tabs
         function switchTab(event, tabName) {
             currentTab = tabName;
-            
-            // Update visual active state on buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             renderAchievements();
         }
 
-        // Save current array state to localStorage
-        function saveToStorage() {
-            localStorage.setItem('myTabbedAchievements', JSON.stringify(achievements));
-        }
-
-        // Form submission handling
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const title = document.getElementById('title').value;
-            const category = document.getElementById('category').value;
-            const date = document.getElementById('date').value;
-            const description = document.getElementById('description').value;
-
-            const newAchievement = {
-                id: Date.now(),
-                title: title,
-                category: category,
-                date: date,
-                description: description
-            };
-
-            achievements.push(newAchievement);
-            saveToStorage();
-            renderAchievements();
-            form.reset();
-        });
-
-        // Function to delete an achievement
-        function deleteAchievement(id) {
-            achievements = achievements.filter(item => item.id !== id);
-            saveToStorage();
-            renderAchievements();
-        }
-
-        // Initial load
-        renderAchievements();
+        // Start the website by pulling from the json file
+        loadAchievements();
     </script>
 </body>
 </html>
