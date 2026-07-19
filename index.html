@@ -89,7 +89,6 @@
             font-weight: 600;
         }
         
-        /* --- SECURE DROPDOWN NAVIGATION STYLING --- */
         .dropdown-wrapper {
             position: relative;
             display: inline-flex !important; 
@@ -97,7 +96,7 @@
         }
         
         .dropdown-menu {
-            display: none; /* Enforces strict default hidden state */
+            display: none;
             position: absolute;
             top: 100%;
             left: 0;
@@ -111,7 +110,6 @@
             margin-top: 4px;
         }
         
-        /* Triggers display visibility strictly when active or hovered */
         .dropdown-wrapper:hover .dropdown-menu, .dropdown-wrapper.open .dropdown-menu {
             display: block !important;
         }
@@ -221,7 +219,6 @@
         .delete-btn:hover { text-decoration: underline; }
         .empty-state { text-align: center; padding: 48px 0; font-family: var(--monospace-font); font-size: 13px; color: var(--text-color); }
         
-        /* Device State Access Protections */
         .admin-only, .public-user .delete-btn { display: none !important; }
         .admin-user .admin-only { display: block !important; }
     </style>
@@ -333,18 +330,17 @@
         let currentTheme = 'light';
         const MASTER_ADMIN_KEY = 'carrotie';
 
-        // --- GITHUB CONFIGURATION CONFIG ---
         const GITHUB_USER = 'rishikd15'; 
         const GITHUB_REPO = 'Portfolio'; 
         const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/achievements.json`;
 
         let achievements = [];
-        let gitHubToken = ''; // Temporarily stored safely in browser memory while logged in
+        let gitHubToken = ''; 
 
-        // 1. Fetch live achievements directly from the cloud repository file
         async function loadAchievements() {
             try {
-                const response = await fetch('./achievements.json');
+                // Fetch using cache buster to guarantee latest live file version
+                const response = await fetch(`./achievements.json?t=${Date.now()}`);
                 if (!response.ok) throw new Error("File not found");
                 achievements = await response.json();
             } catch (error) {
@@ -363,31 +359,37 @@
             renderAchievements();
         }
 
-        // 2. Safely push modifications straight into your live GitHub repository code
         async function saveToGitHub() {
             if (!gitHubToken) {
                 alert("Missing active cloud authorization token signature. Changes applied only locally.");
                 return;
             }
             try {
-                // Fetch the absolute newest file data from GitHub first to get the latest SHA tracking key
-                const getRes = await fetch(API_URL, {
+                // Complete explicit headers added to overcome server connection failures
+                const getRes = await fetch(`${API_URL}?t=${Date.now()}`, {
+                    method: 'GET',
                     headers: {
                         'Authorization': `token ${gitHubToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
                         'Cache-Control': 'no-cache'
                     }
                 });
-                const fileData = await getRes.json();
-                const fileSha = fileData.sha; // Read GitHub's freshest file version key
+                
+                if (!getRes.ok) {
+                    throw new Error(`Failed to fetch file metadata: ${getRes.status}`);
+                }
 
-                // Safely package data into text format for transmission
+                const fileData = await getRes.json();
+                const fileSha = fileData.sha; 
+
                 const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(achievements, null, 2))));
 
                 const putRes = await fetch(API_URL, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `token ${gitHubToken}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
                     },
                     body: JSON.stringify({
                         message: 'Automated milestone ledger deployment',
@@ -415,7 +417,7 @@
             } else {
                 document.body.className = 'public-user';
                 if (adminPortalBtn) adminPortalBtn.textContent = '🔒 Admin Login';
-                gitHubToken = ''; // Clear key out of active memory on exit
+                gitHubToken = ''; 
             }
         }
 
@@ -430,10 +432,9 @@
                 } else {
                     const userInput = prompt("Enter Master Administrative Security Key:");
                     if (userInput === MASTER_ADMIN_KEY) {
-                        // Instantly requests token access while activating administrative status
                         const tokenInput = prompt("Enter your GitHub Personal Access Token to connect live cloud saving:");
                         if (tokenInput) {
-                            gitHubToken = tokenInput;
+                            gitHubToken = tokenInput.trim();
                             localStorage.setItem('portfolio_admin_active', 'true');
                             alert("Authenticated successfully! Cloud synchronization pipeline unlocked.");
                             verifyDeviceIdentity();
@@ -448,7 +449,6 @@
             });
         }
 
-        // Click trigger toggle to keep dropdown interactive on touch devices
         window.toggleDropdownMenu = function(e) {
             e.stopPropagation();
             document.querySelector('.dropdown-wrapper').classList.toggle('open');
@@ -632,7 +632,6 @@
             saveToGitHub();
         }
 
-        // Global initialization sequence
         verifyDeviceIdentity();
         matchSystemTheme();
         loadAchievements();
