@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": 1784428080437,
+    "title": "Personal Portfolio",
+    "category": "coding",
+    "subcategory": "",
+    "date": "July 2026",
+    "description": "Created a personal portfolio that showcases all personal achievements on a live database."
+  }
+]
