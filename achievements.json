@@ -1,13 +1,19 @@
 [
   {
+    "id": 1,
+    "title": "FLL Innovation Project Award",
+    "category": "robotics",
+    "subcategory": "fll",
+    "date": "Jan 2026",
+    "description": "Engineered high-torque custom gear assemblies and written responsive sensors algorithms in SPIKE Prime to streamline autonomous cargo movement during field runs."
+  },
+  {
     "id": 2,
     "title": "Launched on GitHub Pages",
-    "category": "work",
+    "category": "coding",
     "date": "July 2026",
     "description": "Published the portfolio online so friends and family can view it from any device."
-  }
-]
-[
+  },
   {
     "id": 3,
     "title": "yum",
