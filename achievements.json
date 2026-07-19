@@ -5,12 +5,5 @@
     "category": "personal",
     "date": "July 2026",
     "description": "Successfully built and launched an interactive web app with category tabs using vanilla JS."
-  },
-  {
-    "id": 2,
-    "title": "Launched on GitHub Pages",
-    "category": "work",
-    "date": "July 2026",
-    "description": "Published the portfolio online so friends and family can view it from any device."
   }
 ]
