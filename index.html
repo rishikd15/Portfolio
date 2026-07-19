@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Personal Achievements</title>
     <style>
+        /* Light Mode Colors */
         :root {
             --bg-color: #f4f7f6;
             --card-bg: #ffffff;
@@ -12,6 +13,17 @@
             --primary-color: #4a90e2;
             --accent-color: #2ecc71;
             --tab-inactive: #e0e0e0;
+            --sub-text: #777777;
+        }
+
+        /* Dark Mode Colors */
+        body.dark-mode {
+            --bg-color: #1a1c1e;
+            --card-bg: #2d3135;
+            --text-color: #f0f2f5;
+            --primary-color: #64b5f6;
+            --tab-inactive: #42474c;
+            --sub-text: #b0b8c0;
         }
 
         body {
@@ -23,11 +35,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         header {
             text-align: center;
             margin-bottom: 30px;
+            position: relative;
+            width: 100%;
+            max-width: 800px;
         }
 
         h1 {
@@ -35,19 +51,48 @@
             margin-bottom: 5px;
         }
 
+        .subtitle {
+            color: var(--sub-text);
+            margin: 0;
+        }
+
+        .theme-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: var(--tab-inactive);
+            color: var(--text-color);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
         .container {
             width: 100%;
             max-width: 800px;
         }
 
-        /* Form Styling (Hidden by default) */
+        section-heading {
+            display: block;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        /* Form Styling */
         .form-card {
             display: none;
             background: var(--card-bg);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .form-group {
@@ -63,13 +108,15 @@
         input[type="text"], textarea, select {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--tab-inactive);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             border-radius: 4px;
             box-sizing: border-box;
             font-size: 14px;
         }
 
-        button {
+        button.submit-btn {
             background-color: var(--primary-color);
             color: white;
             border: none;
@@ -77,11 +124,11 @@
             font-size: 16px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: opacity 0.2s;
         }
 
         button:hover {
-            background-color: #357abd;
+            opacity: 0.9;
         }
 
         /* Tab Navigation Styling */
@@ -95,17 +142,13 @@
 
         .tab-btn {
             background-color: var(--tab-inactive);
-            color: #555;
+            color: var(--text-color);
             padding: 8px 16px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.2s;
-        }
-
-        .tab-btn:hover {
-            background-color: #d0d0d0;
         }
 
         .tab-btn.active {
@@ -138,13 +181,13 @@
 
         .achievement-date {
             font-size: 0.85em;
-            color: #777;
+            color: var(--sub-text);
         }
 
         .achievement-category {
             font-size: 0.75em;
-            background: #e1f5fe;
-            color: #0288d1;
+            background: var(--primary-color);
+            color: white;
             padding: 3px 8px;
             border-radius: 12px;
             text-transform: uppercase;
@@ -153,27 +196,26 @@
 
         .achievement-title {
             margin: 0 0 10px 0;
-            color: #2c3e50;
         }
 
         .achievement-desc {
             margin: 0;
             line-height: 1.5;
+            color: var(--sub-text);
         }
 
-        /* Delete button hidden by default */
         .delete-btn {
             display: none;
             position: absolute;
             top: 15px;
             right: 15px;
             background: #e74c3c;
+            color: white;
+            border: none;
             padding: 5px 10px;
             font-size: 12px;
-        }
-
-        .delete-btn:hover {
-            background: #c0392b;
+            border-radius: 4px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -181,11 +223,13 @@
 
     <header>
         <h1>My Achievement Portfolio</h1>
-        <p>A live tracking of my personal milestones and successes.</p>
+        <p class="subtitle">A live tracking of my personal milestones and successes.</p>
+        <button class="theme-btn" onclick="toggleTheme()">🌓 Theme</button>
     </header>
 
     <div class="container">
         <div id="adminFormCard" class="form-card">
+            <span class="section-heading">Admin Panel</span>
             <h2>Add New Achievement</h2>
             <form id="achievementForm">
                 <div class="form-group">
@@ -208,10 +252,11 @@
                     <label for="description">Description</label>
                     <textarea id="description" rows="3" placeholder="Describe your achievement..." required></textarea>
                 </div>
-                <button type="submit">Add Achievement</button>
+                <button type="submit" class="submit-btn">Add Achievement</button>
             </form>
         </div>
 
+        <span class="section-heading">Filter Milestones</span>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab(event, 'all')">All</button>
             <button class="tab-btn" onclick="switchTab(event, 'work')">Work</button>
@@ -235,9 +280,13 @@
         let gitHubToken = '';
 
         // CHANGE THESE VALUES TO MATCH YOUR ACCOUNT!
-        const GITHUB_USER = 'rishikd15'; 
-        const GITHUB_REPO = 'Portfolio';
+        const GITHUB_USER = 'YOUR_GITHUB_USERNAME'; 
+        const GITHUB_REPO = 'YOUR_REPO_NAME';
         const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/achievements.json`;
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
 
         function checkAdminMode() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -254,7 +303,7 @@
                 achievements = await response.json();
                 renderAchievements();
             } catch (error) {
-                container.innerHTML = '<p style="text-align:center; color:red;">Failed to load achievements.</p>';
+                container.innerHTML = '<p style="text-align:center; color:red;">Failed to load achievements. Check if achievements.json exists.</p>';
             }
         }
 
@@ -263,7 +312,7 @@
             const filtered = currentTab === 'all' ? achievements : achievements.filter(item => item.category === currentTab);
 
             if (filtered.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#777;">No achievements here yet.</p>';
+                container.innerHTML = '<p style="text-align:center; color:var(--sub-text);">No achievements here yet.</p>';
                 return;
             }
 
