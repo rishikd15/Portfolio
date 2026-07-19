@@ -334,10 +334,8 @@
         const MASTER_ADMIN_KEY = 'carrotie';
 
         // --- GITHUB CONFIGURATION CONFIG ---
-        // Change these strings to match your exact GitHub repository details!
-       // Change this to match your exact repository name capitalization!
         const GITHUB_USER = 'rishikd15'; 
-        const GITHUB_REPO = 'Portfolio';
+        const GITHUB_REPO = 'Portfolio'; 
         const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/achievements.json`;
 
         let achievements = [];
@@ -372,9 +370,15 @@
                 return;
             }
             try {
-                const getRes = await fetch(API_URL);
+                // Fetch the absolute newest file data from GitHub first to get the latest SHA tracking key
+                const getRes = await fetch(API_URL, {
+                    headers: {
+                        'Authorization': `token ${gitHubToken}`,
+                        'Cache-Control': 'no-cache'
+                    }
+                });
                 const fileData = await getRes.json();
-                const fileSha = fileData.sha; // Read GitHub's unique file version key
+                const fileSha = fileData.sha; // Read GitHub's freshest file version key
 
                 // Safely package data into text format for transmission
                 const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(achievements, null, 2))));
