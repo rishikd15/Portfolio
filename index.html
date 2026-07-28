@@ -480,7 +480,7 @@
                 <button class="tab-btn" onclick="switchTab('school')">School</button>
                 
                 <div class="dropdown-wrapper">
-                    <button class="tab-btn dropdown-trigger" onclick="toggleDropdownMenu(event)">Robotics ▾</button>
+                    <button class="tab-btn dropdown-trigger" onclick="toggleDropdown(event)">Robotics ▾</button>
                     <div id="roboticsDropdown" class="dropdown-menu">
                         <button onclick="switchTab('robotics')">Overview</button>
                         <button onclick="switchTab('fll')">FLL</button>
@@ -492,7 +492,7 @@
                 <button class="tab-btn" onclick="switchTab('science projects')">Science Projects</button>
                 <button class="tab-btn" onclick="switchTab('coding')">Coding</button>
             </div>
-            <button class="theme-toggle-btn" onclick="toggleThemeManual()">🌓 Dark mode</button>
+            <button class="theme-toggle-btn" onclick="toggleTheme()">🌓 Dark mode</button>
         </div>
     </div>
     
@@ -566,21 +566,12 @@
     </div>
 
     <script>
-        // ===== CONFIGURATION =====
-        const GITHUB_USER = 'rishikd15';
-        const GITHUB_REPO = 'Portfolio';
-        const MASTER_ADMIN_KEY = 'carrotie';
-        const STORAGE_KEY = 'portfolio_data';
-        const ADMIN_STORAGE_KEY = 'portfolio_admin_active';
-        const TOKEN_STORAGE_KEY = 'github_token';
-        
         // ===== STATE =====
         let achievements = [];
         let currentTab = 'all';
         let currentTheme = 'light';
         let gitHubToken = '';
         let isAdmin = false;
-        let isOnline = false;
         
         // ===== DOM REFS =====
         const form = document.getElementById('achievementForm');
@@ -593,184 +584,69 @@
         const adminPortalBtn = document.getElementById('adminPortalBtn');
         const statusBadge = document.getElementById('connectionStatus');
         
-        // ===== LOCAL STORAGE =====
-        function saveToLocalStorage() {
+        // ===== LOAD DATA =====
+        function loadAchievements() {
+            // Try localStorage first
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(achievements));
-                return true;
-            } catch (e) {
-                console.warn('Could not save to localStorage:', e);
-                return false;
-            }
-        }
-        
-        function loadFromLocalStorage() {
-            try {
-                const data = localStorage.getItem(STORAGE_KEY);
+                const data = localStorage.getItem('portfolio_data');
                 if (data) {
                     achievements = JSON.parse(data);
-                    return true;
+                    renderAchievements();
+                    return;
                 }
-            } catch (e) {
-                console.warn('Could not load from localStorage:', e);
-            }
-            return false;
-        }
-        
-        // ===== GITHUB OPERATIONS =====
-        async function loadFromGitHub() {
-            try {
-                const response = await fetch(./achievements.json?t=${Date.now()});
-                if (response.ok) {
-                    const data = await response.json();
-                    if (Array.isArray(data) && data.length > 0) {
-                        achievements = data;
-                        saveToLocalStorage();
-                        return true;
-                    }
-                }
-            } catch (error) {
-                console.warn('Could not fetch achievements.json:', error);
-            }
-            return false;
-        }
-        
-        async function saveToGitHub() {
-            if (!gitHubToken) {
-                console.warn('No GitHub token provided. Changes saved locally only.');
-                showStatus('offline', '● Offline Mode (Local Only)');
-                return false;
-            }
+            } catch (e) {}
             
-            try {
-                const apiUrl = https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/achievements.json;
-                
-                // Get current file SHA
-                const getRes = await fetch(${apiUrl}?t=${Date.now()}, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': token ${gitHubToken},
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Cache-Control': 'no-cache'
-                    }
-                });
-                
-                let sha = null;
-                if (getRes.ok) {
-                    const fileData = await getRes.json();
-                    sha = fileData.sha;
-                } else if (getRes.status !== 404) {
-                    throw new Error(GitHub API error: ${getRes.status});
+            // Default data
+            achievements = [
+                {
+                    id: 1,
+                    title: "FLL Innovation Project Award",
+                    category: "robotics",
+                    subcategory: "fll",
+                    date: "Jan 2026",
+                    description: "Engineered high-torque custom gear assemblies and written responsive sensors algorithms in SPIKE Prime to streamline autonomous cargo movement during field runs."
+                },
+                {
+                    id: 2,
+                    title: "Personal Portfolio Website",
+                    category: "coding",
+                    subcategory: "",
+                    date: "Jul 2025",
+                    description: "Built a fully responsive portfolio website using HTML, CSS, and JavaScript with GitHub Pages integration and dark mode support."
+                },
+                {
+                    id: 3,
+                    title: "Arduino Line Following Robot",
+                    category: "robotics",
+                    subcategory: "arduino",
+                    date: "Mar 2025",
+                    description: "Designed and programmed an autonomous line-following robot using Arduino Uno, IR sensors, and PID control algorithms."
+                },
+                {
+                    id: 4,
+                    title: "Solar System 3D Model",
+                    category: "science projects",
+                    subcategory: "",
+                    date: "Nov 2024",
+                    description: "Created a 3D-printed scale model of the solar system with LED lighting and Arduino-controlled orbital rotation."
+                },
+                {
+                    id: 5,
+                    title: "School Science Fair Winner",
+                    category: "school",
+                    subcategory: "",
+                    date: "May 2025",
+                    description: "Won first place for a project demonstrating renewable energy harvesting using piezoelectric materials."
                 }
-                
-                // Prepare content
-                const content = JSON.stringify(achievements, null, 2);
-                const encodedContent = btoa(unescape(encodeURIComponent(content)));
-                
-                // Upload to GitHub
-                const putRes = await fetch(apiUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': token ${gitHubToken},
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/vnd.github.v3+json'
-                    },
-                    body: JSON.stringify({
-                        message: 'Update achievements via portfolio',
-                        content: encodedContent,
-                        sha: sha || undefined
-                    })
-                });
-                
-                if (putRes.ok) {
-                    showStatus('online', '● Cloud Sync Active');
-                    return true;
-                } else {
-                    const errorData = await putRes.json();
-                    console.error('GitHub save error:', errorData);
-                    throw new Error(Failed to save: ${putRes.status});
-                }
-            } catch (error) {
-                console.error('GitHub save error:', error);
-                showStatus('offline', '● Offline Mode (Sync Failed)');
-                return false;
-            }
-        }
-        
-        // ===== STATUS DISPLAY =====
-        function showStatus(type, text) {
-            isOnline = (type === 'online');
-            statusBadge.className = status-badge ${type === 'online' ? 'status-online' : 'status-offline'};
-            statusBadge.textContent = text;
-        }
-        
-        // ===== LOAD DATA =====
-        async function loadAchievements() {
-            // Try GitHub first
-            const loaded = await loadFromGitHub();
-            
-            if (!loaded) {
-                // Try localStorage
-                const localLoaded = loadFromLocalStorage();
-                
-                if (!localLoaded) {
-                    // Use default data
-                    achievements = [
-                        {
-                            id: Date.now() + 1,
-                            title: "FLL Innovation Project Award",
-                            category: "robotics",
-                            subcategory: "fll",
-                            date: "Jan 2026",
-                            description: "Engineered high-torque custom gear assemblies and written responsive sensors algorithms in SPIKE Prime to streamline autonomous cargo movement during field runs."
-                        },
-                        {
-                            id: Date.now() + 2,
-                            title: "Personal Portfolio Website",
-                            category: "coding",
-                            subcategory: "",
-                            date: "Jul 2025",
-                            description: "Built a fully responsive portfolio website using HTML, CSS, and JavaScript with GitHub Pages integration and dark mode support."
-                        },
-                        {
-                            id: Date.now() + 3,
-                            title: "Arduino Line Following Robot",
-                            category: "robotics",
-                            subcategory: "arduino",
-                            date: "Mar 2025",
-                            description: "Designed and programmed an autonomous line-following robot using Arduino Uno, IR sensors, and PID control algorithms."
-                        },
-                        {
-                            id: Date.now() + 4,
-                            title: "Solar System Model",
-                            category: "science projects",
-                            subcategory: "",
-                            date: "Nov 2024",
-                            description: "Created a 3D-printed scale model of the solar system with LED lighting and Arduino-controlled orbital rotation."
-                        },
-                        {
-                            id: Date.now() + 5,
-                            title: "School Science Fair Winner",
-                            category: "school",
-                            subcategory: "",
-                            date: "May 2025",
-                            description: "Won first place for a project demonstrating renewable energy harvesting using piezoelectric materials."
-                        }
-                    ];
-                    saveToLocalStorage();
-                }
-            }
-            
+            ];
+            saveToLocalStorage();
             renderAchievements();
-            checkConnectionStatus();
         }
         
-        function checkConnectionStatus() {
-            if (gitHubToken && isAdmin) {
-                showStatus('online', '● Cloud Sync Active');
-            } else {
-                showStatus('offline', '● Offline Mode');
-            }
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('portfolio_data', JSON.stringify(achievements));
+            } catch (e) {}
         }
         
         // ===== RENDER =====
@@ -791,7 +667,7 @@
                 return;
             }
             
-            const isAdminUser = localStorage.getItem(ADMIN_STORAGE_KEY) === 'true';
+            const isAdminUser = localStorage.getItem('portfolio_admin_active') === 'true';
             
             filtered.forEach(achievement => {
                 const card = document.createElement('div');
@@ -821,7 +697,53 @@
             });
         }
         
-        // ===== TABS =====
+        // ===== SWITCH TAB (GLOBAL FUNCTION) =====
+        window.switchTab = function(tabName) {
+            currentTab = tabName;
+            
+            // Update button states
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find and activate the matching button
+            buttons.forEach(btn => {
+                const text = btn.textContent.toLowerCase().replace(' ▾', '');
+                if (text === tabName || (tabName === 'all' && text === 'all')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Handle dropdown
+            const dropdownWrapper = document.querySelector('.dropdown-wrapper');
+            if (dropdownWrapper) {
+                if (['fll', 'arduino', 'raspberry pi', 'robotics'].includes(tabName)) {
+                    dropdownWrapper.classList.add('active');
+                } else {
+                    dropdownWrapper.classList.remove('active');
+                }
+                dropdownWrapper.classList.remove('open');
+            }
+            
+            updateFormContext();
+            renderAchievements();
+        };
+        
+        // ===== TOGGLE DROPDOWN =====
+        window.toggleDropdown = function(e) {
+            e.stopPropagation();
+            const wrapper = document.querySelector('.dropdown-wrapper');
+            if (wrapper) {
+                wrapper.classList.toggle('open');
+            }
+        };
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            const wrapper = document.querySelector('.dropdown-wrapper');
+            if (wrapper) wrapper.classList.remove('open');
+        });
+        
+        // ===== UPDATE FORM CONTEXT =====
         function updateFormContext() {
             if (currentTab === 'all') {
                 document.getElementById('categoryGroup').style.display = 'block';
@@ -857,121 +779,63 @@
             }
         }
         
-        window.switchTab = function(tabName) {
-            currentTab = tabName;
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            const dropdownWrapper = document.querySelector('.dropdown-wrapper');
-            if (dropdownWrapper) dropdownWrapper.classList.remove('open');
-            
-            buttons.forEach(btn => {
-                if(btn.textContent.toLowerCase().replace(' ▾', '') === tabName) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            if (['fll', 'arduino', 'raspberry pi', 'robotics'].includes(tabName) && dropdownWrapper) {
-                dropdownWrapper.classList.add('active');
-            }
-            
-            updateFormContext();
-            renderAchievements();
-        }
-        
-        window.toggleDropdownMenu = function(e) {
-            e.stopPropagation();
-            document.querySelector('.dropdown-wrapper').classList.toggle('open');
-        };
-        
-        document.addEventListener('click', () => {
-            const wrapper = document.querySelector('.dropdown-wrapper');
-            if (wrapper) wrapper.classList.remove('open');
-        });
-        
         // ===== THEME =====
-        function setTheme(mode) {
-            currentTheme = mode;
-            if (mode === 'dark') {
+        window.toggleTheme = function() {
+            if (currentTheme === 'light') {
                 document.documentElement.className = 'dark-theme-override';
+                currentTheme = 'dark';
             } else {
                 document.documentElement.className = '';
+                currentTheme = 'light';
             }
-        }
-        
-        window.toggleThemeManual = function() {
-            setTheme(currentTheme === 'light' ? 'dark' : 'light');
         };
         
-        function matchSystemTheme() {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                setTheme('dark');
-            } else {
-                setTheme('light');
-            }
-        }
-        
         // ===== ADMIN =====
-        function verifyDeviceIdentity() {
-            isAdmin = localStorage.getItem(ADMIN_STORAGE_KEY) === 'true';
-            gitHubToken = localStorage.getItem(TOKEN_STORAGE_KEY) || '';
+        function verifyAdmin() {
+            isAdmin = localStorage.getItem('portfolio_admin_active') === 'true';
             
             if (isAdmin) {
                 document.body.className = 'admin-user';
                 adminPortalBtn.textContent = '🔓 Log Out Admin';
-                checkConnectionStatus();
+                statusBadge.className = 'status-badge status-online';
+                statusBadge.textContent = '● Admin Mode';
             } else {
                 document.body.className = 'public-user';
                 adminPortalBtn.textContent = '🔒 Admin Login';
-                gitHubToken = '';
-                localStorage.removeItem(TOKEN_STORAGE_KEY);
-                showStatus('offline', '● Offline Mode');
+                statusBadge.className = 'status-badge status-offline';
+                statusBadge.textContent = '● Offline Mode';
             }
         }
         
-        if (adminPortalBtn) {
-            adminPortalBtn.addEventListener('click', () => {
-                if (isAdmin) {
-                    localStorage.removeItem(ADMIN_STORAGE_KEY);
-                    localStorage.removeItem(TOKEN_STORAGE_KEY);
-                    isAdmin = false;
-                    gitHubToken = '';
-                    verifyDeviceIdentity();
+        adminPortalBtn.addEventListener('click', function() {
+            if (isAdmin) {
+                localStorage.removeItem('portfolio_admin_active');
+                isAdmin = false;
+                verifyAdmin();
+                renderAchievements();
+                alert('Logged out successfully.');
+            } else {
+                const key = prompt("Enter Admin Security Key:");
+                if (key === 'carrotie') {
+                    localStorage.setItem('portfolio_admin_active', 'true');
+                    isAdmin = true;
+                    verifyAdmin();
                     renderAchievements();
-                    alert('Logged out successfully.');
-                } else {
-                    const userInput = prompt("Enter Master Administrative Security Key:");
-                    if (userInput === MASTER_ADMIN_KEY) {
-                        const tokenInput = prompt("Enter your GitHub Personal Access Token to connect live cloud saving:");
-                        if (tokenInput && tokenInput.trim()) {
-                            gitHubToken = tokenInput.trim();
-                            localStorage.setItem(ADMIN_STORAGE_KEY, 'true');
-                            localStorage.setItem(TOKEN_STORAGE_KEY, gitHubToken);
-                            isAdmin = true;
-                            verifyDeviceIdentity();
-                            renderAchievements();
-                            
-                            // Test connection
-                            saveToGitHub().then(success => {
-                                if (success) {
-                                    alert('Authentication successful! Cloud sync is active.');
-                                } else {
-                                    alert('Authenticated but cloud sync failed. Check your token permissions.');
-                                }
-                            });
-                        } else {
-                            alert('Token required to manipulate database content. Authentication aborted.');
-                        }
-                    } else if (userInput !== null) {
-                        alert('Invalid security authentication key signature.');
-                    }
+                    alert('Admin mode activated! You can now add and delete achievements.');
+                } else if (key !== null) {
+                    alert('Invalid security key.');
                 }
-            });
-        }
+            }
+        });
         
-        // ===== FORM =====
+        // ===== FORM SUBMIT =====
         form.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            if (!isAdmin) {
+                alert('Please login as admin first!');
+                return;
+            }
             
             const title = document.getElementById('title').value;
             let category = categorySelect.value;
@@ -1000,16 +864,9 @@
             
             achievements.push(newAchievement);
             saveToLocalStorage();
-            
-            // Try GitHub save
-            saveToGitHub().then(success => {
-                if (!success) {
-                    console.log('Changes saved locally only.');
-                }
-            });
-            
             renderAchievements();
             form.reset();
+            
             if(category === 'robotics') {
                 subcategoryGroup.style.display = 'block';
             }
@@ -1017,32 +874,21 @@
             alert('Achievement added successfully!');
         });
         
+        // ===== DELETE ACHIEVEMENT =====
         window.deleteAchievement = function(id) {
             if (!isAdmin) return;
             
             if (confirm('Are you sure you want to delete this achievement?')) {
                 achievements = achievements.filter(item => item.id !== id);
                 saveToLocalStorage();
-                saveToGitHub().then(success => {
-                    if (!success) {
-                        console.log('Changes saved locally only.');
-                    }
-                });
                 renderAchievements();
             }
         };
         
         // ===== INIT =====
-        verifyDeviceIdentity();
-        matchSystemTheme();
+        verifyAdmin();
         loadAchievements();
-        
-        // Auto-save every 5 minutes
-        setInterval(() => {
-            if (isAdmin && gitHubToken) {
-                saveToGitHub().catch(console.warn);
-            }
-        }, 300000);
+        updateFormContext();
         
         console.log('🚀 Portfolio loaded successfully!');
         console.log(📊 ${achievements.length} achievements loaded);
