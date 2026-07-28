@@ -11,13 +11,12 @@
             --border-color: #eaeaea;
             --text-color: #666666;
             --text-heading: #111111;
-            --primary-color: #000000; 
-            --tab-inactive: transparent;
+            --primary-color: #000000;
             --navbar-bg: rgba(255, 255, 255, 0.8);
             --monospace-font: ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, monospace;
         }
         
-        html.dark-theme-override, .dark-theme-override {
+        .dark-theme {
             --bg-color: #111111;
             --card-bg: #111111;
             --border-color: #222222;
@@ -76,7 +75,7 @@
         }
         
         .tab-btn, .theme-toggle-btn {
-            background-color: var(--tab-inactive);
+            background-color: transparent;
             color: var(--text-color);
             padding: 6px 12px;
             border: 1px solid transparent;
@@ -96,7 +95,7 @@
             color: var(--text-heading); 
         }
         
-        .tab-btn.active, .dropdown-wrapper.active .dropdown-trigger {
+        .tab-btn.active {
             background-color: var(--border-color);
             color: var(--text-heading);
             font-weight: 600;
@@ -104,8 +103,7 @@
         
         .dropdown-wrapper {
             position: relative;
-            display: inline-flex !important; 
-            align-items: center;
+            display: inline-block;
         }
         
         .dropdown-menu {
@@ -123,7 +121,8 @@
             margin-top: 4px;
         }
         
-        .dropdown-wrapper:hover .dropdown-menu, .dropdown-wrapper.open .dropdown-menu {
+        .dropdown-wrapper:hover .dropdown-menu,
+        .dropdown-wrapper.open .dropdown-menu {
             display: block !important;
         }
         
@@ -189,14 +188,6 @@
             margin: 0 0 16px 0; 
             letter-spacing: -0.04em; 
             line-height: 1.1; 
-        }
-        
-        .subheading { 
-            font-size: 1.1rem; 
-            line-height: 1.6; 
-            max-width: 720px; 
-            margin: 0 0 24px 0; 
-            color: var(--text-color); 
         }
         
         .contact-row { 
@@ -453,22 +444,6 @@
             background: #fde8e8;
             color: #cc0000;
         }
-        
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
-            }
-            
-            .nav-links {
-                justify-content: center;
-            }
-            
-            .theme-toggle-btn {
-                align-self: center;
-            }
-        }
     </style>
 </head>
 <body>
@@ -476,23 +451,23 @@
         <div class="navbar">
             <div class="nav-links">
                 <span class="nav-brand">Portfolio</span>
-                <button class="tab-btn active" onclick="switchTab('all')">All</button>
-                <button class="tab-btn" onclick="switchTab('school')">School</button>
+                <button class="tab-btn active" data-tab="all">All</button>
+                <button class="tab-btn" data-tab="school">School</button>
                 
                 <div class="dropdown-wrapper">
-                    <button class="tab-btn dropdown-trigger" onclick="toggleDropdown(event)">Robotics ▾</button>
-                    <div id="roboticsDropdown" class="dropdown-menu">
-                        <button onclick="switchTab('robotics')">Overview</button>
-                        <button onclick="switchTab('fll')">FLL</button>
-                        <button onclick="switchTab('arduino')">Arduino</button>
-                        <button onclick="switchTab('raspberry pi')">Raspberry Pi</button>
+                    <button class="tab-btn dropdown-trigger">Robotics ▾</button>
+                    <div class="dropdown-menu">
+                        <button data-tab="robotics">Overview</button>
+                        <button data-tab="fll">FLL</button>
+                        <button data-tab="arduino">Arduino</button>
+                        <button data-tab="raspberry pi">Raspberry Pi</button>
                     </div>
                 </div>
 
-                <button class="tab-btn" onclick="switchTab('science projects')">Science Projects</button>
-                <button class="tab-btn" onclick="switchTab('coding')">Coding</button>
+                <button class="tab-btn" data-tab="science projects">Science Projects</button>
+                <button class="tab-btn" data-tab="coding">Coding</button>
             </div>
-            <button class="theme-toggle-btn" onclick="toggleTheme()">🌓 Dark mode</button>
+            <button class="theme-toggle-btn" id="themeToggle">🌓 Dark mode</button>
         </div>
     </div>
     
@@ -566,35 +541,22 @@
     </div>
 
     <script>
-        // ===== STATE =====
+        // ===== DATA =====
         let achievements = [];
         let currentTab = 'all';
-        let currentTheme = 'light';
-        let gitHubToken = '';
         let isAdmin = false;
         
-        // ===== DOM REFS =====
-        const form = document.getElementById('achievementForm');
-        const container = document.getElementById('achievementsContainer');
-        const formCard = document.getElementById('formCard');
-        const categoryNotice = document.getElementById('categoryNotice');
-        const categorySelect = document.getElementById('category');
-        const subcategoryGroup = document.getElementById('subcategoryGroup');
-        const subcategorySelect = document.getElementById('subcategory');
-        const adminPortalBtn = document.getElementById('adminPortalBtn');
-        const statusBadge = document.getElementById('connectionStatus');
-        
         // ===== LOAD DATA =====
-        function loadAchievements() {
-            // Try localStorage first
+        function loadData() {
+            // Try localStorage
             try {
-                const data = localStorage.getItem('portfolio_data');
-                if (data) {
-                    achievements = JSON.parse(data);
+                const saved = localStorage.getItem('portfolio_achievements');
+                if (saved) {
+                    achievements = JSON.parse(saved);
                     renderAchievements();
                     return;
                 }
-            } catch (e) {}
+            } catch(e) {}
             
             // Default data
             achievements = [
@@ -639,260 +601,270 @@
                     description: "Won first place for a project demonstrating renewable energy harvesting using piezoelectric materials."
                 }
             ];
-            saveToLocalStorage();
+            saveData();
             renderAchievements();
         }
         
-        function saveToLocalStorage() {
+        function saveData() {
             try {
-                localStorage.setItem('portfolio_data', JSON.stringify(achievements));
-            } catch (e) {}
+                localStorage.setItem('portfolio_achievements', JSON.stringify(achievements));
+            } catch(e) {}
         }
         
         // ===== RENDER =====
         function renderAchievements() {
+            const container = document.getElementById('achievementsContainer');
             if (!container) return;
             
             container.innerHTML = '';
-            const filtered = currentTab === 'all' 
-                ? achievements 
-                : achievements.filter(item => 
-                    item.category === currentTab || 
-                    item.subcategory === currentTab ||
-                    (item.category === 'robotics' && ['fll', 'arduino', 'raspberry pi'].includes(currentTab))
-                );
+            
+            let filtered = achievements;
+            if (currentTab !== 'all') {
+                filtered = achievements.filter(item => {
+                    if (item.category === currentTab) return true;
+                    if (item.subcategory === currentTab) return true;
+                    if (currentTab === 'robotics' && item.category === 'robotics') return true;
+                    if (['fll', 'arduino', 'raspberry pi'].includes(currentTab) && item.subcategory === currentTab) return true;
+                    return false;
+                });
+            }
             
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state">No technical entries deployed to this stack view.</div>';
+                container.innerHTML = '<div class="empty-state">No achievements in this category.</div>';
                 return;
             }
             
-            const isAdminUser = localStorage.getItem('portfolio_admin_active') === 'true';
-            
-            filtered.forEach(achievement => {
+            filtered.forEach(ach => {
                 const card = document.createElement('div');
-                card.className = achievement-card ${achievement.category};
+                card.className = 'achievement-card';
                 
-                const deleteButtonHtml = isAdminUser 
-                    ? <button class="delete-btn" onclick="deleteAchievement(${achievement.id})">Decommission</button> 
-                    : '';
-                
-                const subTagHtml = achievement.subcategory 
-                    ? <span class="achievement-subcategory">${achievement.subcategory}</span> 
-                    : '';
+                let subHtml = ach.subcategory ? <span class="achievement-subcategory">${ach.subcategory}</span> : '';
+                let deleteHtml = isAdmin ? <button class="delete-btn" onclick="deleteAchievement(${ach.id})">Delete</button> : '';
                 
                 card.innerHTML = `
                     <div class="achievement-header">
                         <div>
-                            <span class="achievement-category">${achievement.category}</span>
-                            ${subTagHtml}
+                            <span class="achievement-category">${ach.category}</span>
+                            ${subHtml}
                         </div>
-                        <div class="achievement-date">${achievement.date}</div>
+                        <div class="achievement-date">${ach.date}</div>
                     </div>
-                    <h3 class="achievement-title">${achievement.title}</h3>
-                    <p class="achievement-desc">${achievement.description}</p>
-                    ${deleteButtonHtml}
+                    <h3 class="achievement-title">${ach.title}</h3>
+                    <p class="achievement-desc">${ach.description}</p>
+                    ${deleteHtml}
                 `;
                 container.appendChild(card);
             });
         }
         
-        // ===== SWITCH TAB (GLOBAL FUNCTION) =====
-        window.switchTab = function(tabName) {
-            currentTab = tabName;
+        // ===== SWITCH TAB =====
+        function switchTab(tab) {
+            currentTab = tab;
             
             // Update button states
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            // Find and activate the matching button
-            buttons.forEach(btn => {
-                const text = btn.textContent.toLowerCase().replace(' ▾', '');
-                if (text === tabName || (tabName === 'all' && text === 'all')) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.tab === tab) {
                     btn.classList.add('active');
                 }
             });
             
-            // Handle dropdown
-            const dropdownWrapper = document.querySelector('.dropdown-wrapper');
-            if (dropdownWrapper) {
-                if (['fll', 'arduino', 'raspberry pi', 'robotics'].includes(tabName)) {
-                    dropdownWrapper.classList.add('active');
+            // Update dropdown
+            const dropdown = document.querySelector('.dropdown-wrapper');
+            if (dropdown) {
+                if (['robotics', 'fll', 'arduino', 'raspberry pi'].includes(tab)) {
+                    dropdown.classList.add('active');
                 } else {
-                    dropdownWrapper.classList.remove('active');
+                    dropdown.classList.remove('active');
                 }
-                dropdownWrapper.classList.remove('open');
             }
             
-            updateFormContext();
             renderAchievements();
-        };
+            updateFormContext();
+        }
         
-        // ===== TOGGLE DROPDOWN =====
-        window.toggleDropdown = function(e) {
-            e.stopPropagation();
-            const wrapper = document.querySelector('.dropdown-wrapper');
-            if (wrapper) {
-                wrapper.classList.toggle('open');
-            }
-        };
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function() {
-            const wrapper = document.querySelector('.dropdown-wrapper');
-            if (wrapper) wrapper.classList.remove('open');
-        });
-        
-        // ===== UPDATE FORM CONTEXT =====
+        // ===== UPDATE FORM =====
         function updateFormContext() {
+            const notice = document.getElementById('categoryNotice');
+            const categoryGroup = document.getElementById('categoryGroup');
+            const subGroup = document.getElementById('subcategoryGroup');
+            const categorySelect = document.getElementById('category');
+            
             if (currentTab === 'all') {
-                document.getElementById('categoryGroup').style.display = 'block';
+                categoryGroup.style.display = 'block';
+                subGroup.style.display = 'none';
+                notice.style.display = 'none';
                 categorySelect.required = true;
-                categorySelect.value = 'school';
-                categoryNotice.style.display = 'none';
-                subcategoryGroup.style.display = 'none';
-                subcategorySelect.required = false;
-            } 
-            else if (['robotics', 'fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
-                document.getElementById('categoryGroup').style.display = 'none';
+            } else if (['robotics', 'fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
+                categoryGroup.style.display = 'none';
+                subGroup.style.display = 'block';
+                notice.style.display = 'block';
                 categorySelect.required = false;
-                categoryNotice.style.display = 'block';
-                subcategoryGroup.style.display = 'block';
-                subcategorySelect.required = true;
                 
                 if (['fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
-                    categoryNotice.textContent = Targeting robotics context: ${currentTab.toUpperCase()};
-                    subcategorySelect.value = currentTab;
-                    subcategoryGroup.style.display = 'none';
+                    notice.textContent = Category: Robotics → ${currentTab.toUpperCase()};
+                    document.getElementById('subcategory').value = currentTab;
+                    subGroup.style.display = 'none';
                 } else {
-                    categoryNotice.textContent = Targeting pipeline stack: robotics;
-                    subcategorySelect.value = 'fll';
+                    notice.textContent = 'Category: Robotics';
+                    document.getElementById('subcategory').value = 'fll';
                 }
-            } 
-            else {
-                document.getElementById('categoryGroup').style.display = 'none';
-                subcategoryGroup.style.display = 'none';
-                subcategorySelect.required = false;
-                categoryNotice.style.display = 'block';
-                categoryNotice.textContent = Targeting pipeline stack: ${currentTab.toLowerCase()};
+            } else {
+                categoryGroup.style.display = 'none';
+                subGroup.style.display = 'none';
+                notice.style.display = 'block';
+                notice.textContent = Category: ${currentTab};
                 categorySelect.required = false;
+            }
+        }
+        
+        // ===== DELETE =====
+        function deleteAchievement(id) {
+            if (!isAdmin) return;
+            if (confirm('Delete this achievement?')) {
+                achievements = achievements.filter(a => a.id !== id);
+                saveData();
+                renderAchievements();
+            }
+        }
+        
+        // ===== ADMIN =====
+        function toggleAdmin() {
+            if (isAdmin) {
+                localStorage.removeItem('portfolio_admin');
+                isAdmin = false;
+                document.body.className = 'public-user';
+                document.getElementById('adminPortalBtn').textContent = '🔒 Admin Login';
+                document.getElementById('connectionStatus').textContent = '● Offline Mode';
+                document.getElementById('connectionStatus').className = 'status-badge status-offline';
+                renderAchievements();
+                return;
+            }
+            
+            const key = prompt('Enter admin key:');
+            if (key === 'carrotie') {
+                localStorage.setItem('portfolio_admin', 'true');
+                isAdmin = true;
+                document.body.className = 'admin-user';
+                document.getElementById('adminPortalBtn').textContent = '🔓 Log Out Admin';
+                document.getElementById('connectionStatus').textContent = '● Admin Mode';
+                document.getElementById('connectionStatus').className = 'status-badge status-online';
+                renderAchievements();
+                alert('Admin mode activated!');
+            } else if (key !== null) {
+                alert('Invalid key!');
             }
         }
         
         // ===== THEME =====
-        window.toggleTheme = function() {
-            if (currentTheme === 'light') {
-                document.documentElement.className = 'dark-theme-override';
-                currentTheme = 'dark';
+        let darkMode = false;
+        function toggleTheme() {
+            darkMode = !darkMode;
+            if (darkMode) {
+                document.documentElement.classList.add('dark-theme');
+                document.getElementById('themeToggle').textContent = '☀️ Light mode';
             } else {
-                document.documentElement.className = '';
-                currentTheme = 'light';
-            }
-        };
-        
-        // ===== ADMIN =====
-        function verifyAdmin() {
-            isAdmin = localStorage.getItem('portfolio_admin_active') === 'true';
-            
-            if (isAdmin) {
-                document.body.className = 'admin-user';
-                adminPortalBtn.textContent = '🔓 Log Out Admin';
-                statusBadge.className = 'status-badge status-online';
-                statusBadge.textContent = '● Admin Mode';
-            } else {
-                document.body.className = 'public-user';
-                adminPortalBtn.textContent = '🔒 Admin Login';
-                statusBadge.className = 'status-badge status-offline';
-                statusBadge.textContent = '● Offline Mode';
+                document.documentElement.classList.remove('dark-theme');
+                document.getElementById('themeToggle').textContent = '🌓 Dark mode';
             }
         }
         
-        adminPortalBtn.addEventListener('click', function() {
-            if (isAdmin) {
-                localStorage.removeItem('portfolio_admin_active');
-                isAdmin = false;
-                verifyAdmin();
-                renderAchievements();
-                alert('Logged out successfully.');
-            } else {
-                const key = prompt("Enter Admin Security Key:");
-                if (key === 'carrotie') {
-                    localStorage.setItem('portfolio_admin_active', 'true');
-                    isAdmin = true;
-                    verifyAdmin();
-                    renderAchievements();
-                    alert('Admin mode activated! You can now add and delete achievements.');
-                } else if (key !== null) {
-                    alert('Invalid security key.');
+        // ===== EVENT LISTENERS =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab buttons
+            document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+            
+            // Dropdown items
+            document.querySelectorAll('.dropdown-menu button[data-tab]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                    document.querySelector('.dropdown-wrapper').classList.remove('open');
+                });
+            });
+            
+            // Dropdown toggle
+            document.querySelector('.dropdown-trigger').addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.querySelector('.dropdown-wrapper').classList.toggle('open');
+            });
+            
+            // Close dropdown on click outside
+            document.addEventListener('click', function() {
+                document.querySelector('.dropdown-wrapper')?.classList.remove('open');
+            });
+            
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            // Admin toggle
+            document.getElementById('adminPortalBtn').addEventListener('click', toggleAdmin);
+            
+            // Form submit
+            document.getElementById('achievementForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!isAdmin) {
+                    alert('Please login as admin first!');
+                    return;
                 }
-            }
-        });
-        
-        // ===== FORM SUBMIT =====
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (!isAdmin) {
-                alert('Please login as admin first!');
-                return;
-            }
-            
-            const title = document.getElementById('title').value;
-            let category = categorySelect.value;
-            if (['robotics', 'fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
-                category = 'robotics';
-            } else if (currentTab !== 'all') {
-                category = currentTab;
-            }
-            
-            let subcategory = '';
-            if (category === 'robotics') {
-                subcategory = ['fll', 'arduino', 'raspberry pi'].includes(currentTab) ? currentTab : subcategorySelect.value;
-            }
-            
-            const date = document.getElementById('date').value;
-            const description = document.getElementById('description').value;
-            
-            const newAchievement = {
-                id: Date.now(),
-                title: title,
-                category: category,
-                subcategory: subcategory,
-                date: date,
-                description: description
-            };
-            
-            achievements.push(newAchievement);
-            saveToLocalStorage();
-            renderAchievements();
-            form.reset();
-            
-            if(category === 'robotics') {
-                subcategoryGroup.style.display = 'block';
-            }
-            
-            alert('Achievement added successfully!');
-        });
-        
-        // ===== DELETE ACHIEVEMENT =====
-        window.deleteAchievement = function(id) {
-            if (!isAdmin) return;
-            
-            if (confirm('Are you sure you want to delete this achievement?')) {
-                achievements = achievements.filter(item => item.id !== id);
-                saveToLocalStorage();
+                
+                const title = document.getElementById('title').value;
+                const category = document.getElementById('category').value;
+                const subcategory = document.getElementById('subcategory').value;
+                const date = document.getElementById('date').value;
+                const description = document.getElementById('description').value;
+                
+                let finalCategory = category;
+                let finalSub = subcategory;
+                
+                if (['robotics', 'fll', 'arduino', 'raspberry pi'].includes(currentTab)) {
+                    finalCategory = 'robotics';
+                    finalSub = currentTab === 'robotics' ? subcategory : currentTab;
+                } else if (currentTab !== 'all') {
+                    finalCategory = currentTab;
+                    finalSub = '';
+                }
+                
+                const newAch = {
+                    id: Date.now(),
+                    title: title,
+                    category: finalCategory,
+                    subcategory: finalSub,
+                    date: date,
+                    description: description
+                };
+                
+                achievements.push(newAch);
+                saveData();
                 renderAchievements();
+                this.reset();
+                
+                if (finalCategory === 'robotics') {
+                    document.getElementById('subcategoryGroup').style.display = 'block';
+                }
+                
+                alert('Achievement added!');
+            });
+            
+            // Check admin status
+            if (localStorage.getItem('portfolio_admin') === 'true') {
+                isAdmin = true;
+                document.body.className = 'admin-user';
+                document.getElementById('adminPortalBtn').textContent = '🔓 Log Out Admin';
+                document.getElementById('connectionStatus').textContent = '● Admin Mode';
+                document.getElementById('connectionStatus').className = 'status-badge status-online';
             }
-        };
-        
-        // ===== INIT =====
-        verifyAdmin();
-        loadAchievements();
-        updateFormContext();
-        
-        console.log('🚀 Portfolio loaded successfully!');
-        console.log(📊 ${achievements.length} achievements loaded);
-        console.log(isAdmin ? '🔓 Admin mode active' : '🔒 Public mode');
+            
+            // Load data
+            loadData();
+            updateFormContext();
+            
+            console.log('🚀 Portfolio loaded!');
+        });
     </script>
 </body>
 </html>
