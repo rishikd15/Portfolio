@@ -1,20 +1,4 @@
-[11:37 AM, 7/28/2026] Arkajit India: [
-  {
-    "id": 1,
-    "title": "FLL Innovation Project Award",
-    "category": "robotics",
-    "subcategory": "fll",
-    "date": "Jan 2026",
-    "description": "Engineered high-torque custom gear assemblies and written responsive sensors algorithms in SPIKE Prime to streamline autonomous cargo movement during field runs."
-  },
-  {
-    "id": 2,
-    "title": "Personal Portfolio Website",
-    "category": "coding",
-    "subcategory": "",
-    "date": "Jul 2025",
-    "description": "Built a fully responsive portfolio website using HTML, CSS, and JavaScript with GitHub Pages integration and
-[11:38 AM, 7/28/2026] Arkajit India: [
+[
   {
     "id": 1,
     "title": "FLL Innovation Project Award",
@@ -47,7 +31,7 @@
     "date": "Nov 2024",
     "description": "Created a 3D-printed scale model of the solar system with LED lighting and Arduino-controlled orbital rotation demonstrating planetary motion."
   },
-  { 
+  {
     "id": 5,
     "title": "School Science Fair Winner",
     "category": "school",
