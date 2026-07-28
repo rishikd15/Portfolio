@@ -1,10 +1,74 @@
-[
+[11:37 AM, 7/28/2026] Arkajit India: [
   {
-    "id": 1784428080437,
-    "title": "Personal Portfolio",
+    "id": 1,
+    "title": "FLL Innovation Project Award",
+    "category": "robotics",
+    "subcategory": "fll",
+    "date": "Jan 2026",
+    "description": "Engineered high-torque custom gear assemblies and written responsive sensors algorithms in SPIKE Prime to streamline autonomous cargo movement during field runs."
+  },
+  {
+    "id": 2,
+    "title": "Personal Portfolio Website",
     "category": "coding",
     "subcategory": "",
-    "date": "July 2026",
-    "description": "Created a personal portfolio that showcases all personal achievements on a live database."
+    "date": "Jul 2025",
+    "description": "Built a fully responsive portfolio website using HTML, CSS, and JavaScript with GitHub Pages integration and
+[11:38 AM, 7/28/2026] Arkajit India: [
+  {
+    "id": 1,
+    "title": "FLL Innovation Project Award",
+    "category": "robotics",
+    "subcategory": "fll",
+    "date": "Jan 2026",
+    "description": "Engineered high-torque custom gear assemblies and written responsive sensors algorithms in SPIKE Prime to streamline autonomous cargo movement during field runs."
+  },
+  {
+    "id": 2,
+    "title": "Personal Portfolio Website",
+    "category": "coding",
+    "subcategory": "",
+    "date": "Jul 2025",
+    "description": "Built a fully responsive portfolio website using HTML, CSS, and JavaScript with GitHub Pages integration and dark mode support."
+  },
+  {
+    "id": 3,
+    "title": "Arduino Line Following Robot",
+    "category": "robotics",
+    "subcategory": "arduino",
+    "date": "Mar 2025",
+    "description": "Designed and programmed an autonomous line-following robot using Arduino Uno, IR sensors, and PID control algorithms for precise track navigation."
+  },
+  {
+    "id": 4,
+    "title": "Solar System 3D Model",
+    "category": "science projects",
+    "subcategory": "",
+    "date": "Nov 2024",
+    "description": "Created a 3D-printed scale model of the solar system with LED lighting and Arduino-controlled orbital rotation demonstrating planetary motion."
+  },
+  {
+    "id": 5,
+    "title": "School Science Fair Winner",
+    "category": "school",
+    "subcategory": "",
+    "date": "May 2025",
+    "description": "Won first place for a project demonstrating renewable energy harvesting using piezoelectric materials and energy storage systems."
+  },
+  {
+    "id": 6,
+    "title": "Raspberry Pi Weather Station",
+    "category": "robotics",
+    "subcategory": "raspberry pi",
+    "date": "Sep 2025",
+    "description": "Built a wireless weather monitoring station using Raspberry Pi, DHT22 sensors, and Python to collect and visualize real-time environmental data."
+  },
+  {
+    "id": 7,
+    "title": "Python Data Analysis Tool",
+    "category": "coding",
+    "subcategory": "",
+    "date": "Aug 2025",
+    "description": "Developed a Python script that processes CSV data and generates interactive visualizations using pandas and matplotlib for school projects."
   }
 ]
